@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Home{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h1>Campus Guard AI</h1>
+        <p>AI anomaly monitoring  Detecton system using YOLOv11</p>
+        <div class="hero-buttons">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Register</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<section class="features-section">
+    <div class="container">
+        <h2>Intelligent Campus Monitoring</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎥</div>
+                <h3>Real-time CCTV Analysis</h3>
+                <p>Live student detection from CCTV feeds with instant anomaly alerts</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>YOLOv11 AI Model</h3>
+                <p>State-of-the-art object detection for accurate student identification</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Analytics Dashboard</h3>
+                <p>Comprehensive monitoring and reporting interface</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h3>Incident Management</h3>
+                <p>Track and manage security incidents with detailed reporting</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="system-status-section">
+    <div class="container">
+        <h2>System Status</h2>
+        <div class="status-grid">
+            <div class="status-card {% if model_loaded %}status-good{% else %}status-error{% endif %}">
+                <h3>AI Detection Model</h3>
+                <div class="status-value">
+                    {% if model_loaded %}✅ Operational{% else %}❌ Offline{% endif %}
+                </div>
+                <div class="status-detail">
+                    {% if model_loaded %}YOLOv11 model loaded and ready{% else %}Model failed to load{% endif %}
+                </div>
+            </div>
+            <div class="status-card {% if cuda_available %}status-good{% else %}status-warning{% endif %}">
+                <h3>GPU Acceleration</h3>
+                <div class="status-value">
+                    {% if cuda_available %}✅ Available{% else %}⚠️ CPU Only{% endif %}
+                </div>
+                <div class="status-detail">
+                    {% if cuda_available %}Using CUDA for faster processing{% else %}Using CPU (slower performance){% endif %}
+                </div>
+            </div>
+            <div class="status-card status-good">
+                <h3>Web Interface</h3>
+                <div class="status-value">✅ Online</div>
+                <div class="status-detail">System ready for monitoring</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if not current_user.is_authenticated %}
+<section class="auth-prompt">
+    <div class="container">
+        <div class="auth-content">
+            <h2>Get Started with CampusGuard</h2>
+            <p>Login or register to access the security dashboard and monitoring tools</p>
+            <div class="auth-buttons">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to System</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Create Account</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

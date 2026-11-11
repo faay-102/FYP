@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Register{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Create Account</h1>
+            <p>Join the CampusGuard security system</p>
+        </div>
+        
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" class="form-input">
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="security">Security</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="department">Department (Optional)</label>
+                <input type="text" id="department" name="department" class="form-input">
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">Register</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

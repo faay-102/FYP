@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Test Model{% endblock %}
+
+{% block content %}
+<div class="test-header">
+    <h1>Multi-Model Testing Interface</h1>
+    <p>Test different AI models and upload media for detection analysis</p>
+</div>
+
+<div class="test-container">
+    <!-- Model Controls Section -->
+    <div class="model-controls-section">
+        <h2>Model Controls</h2>
+        <div class="model-controls-grid">
+            <!-- Fight Detection -->
+            <div class="model-control-card">
+                <div class="model-header">
+                    <h3>🥊 Fight Detection</h3>
+                    <div class="model-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="fightToggle" data-model="fight">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <p>Detects physical altercations and fights</p>
+                <div class="model-stats">
+                    <span>Confidence: <strong id="fightConfidence">85%</strong></span>
+                    <input type="range" id="fightConfidenceSlider" min="50" max="95" value="85" class="confidence-slider">
+                </div>
+            </div>
+
+            <!-- Sleep Detection -->
+            <div class="model-control-card">
+                <div class="model-header">
+                    <h3>😴 Sleep Detection</h3>
+                    <div class="model-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="sleepToggle" data-model="sleep">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <p>Detects sleeping or inactive students</p>
+                <div class="model-stats">
+                    <span>Confidence: <strong id="sleepConfidence">80%</strong></span>
+                    <input type="range" id="sleepConfidenceSlider" min="50" max="95" value="80" class="confidence-slider">
+                </div>
+            </div>
+
+            <!-- Suspicious Behavior -->
+            <div class="model-control-card">
+                <div class="model-header">
+                    <h3>👀 Suspicious Behavior</h3>
+                    <div class="model-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="suspiciousToggle" data-model="suspicious">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <p>Detects loitering (4+ minutes in same area)</p>
+                <div class="model-stats">
+                    <span>Confidence: <strong id="suspiciousConfidence">90%</strong></span>
+                    <input type="range" id="suspiciousConfidenceSlider" min="50" max="95" value="90" class="confidence-slider">
+                </div>
+            </div>
+
+            <!-- Normal Detection -->
+            <div class="model-control-card">
+                <div class="model-header">
+                    <h3>👥 Normal Detection</h3>
+                    <div class="model-switch">
+                        <label class="switch">
+                            <input type="checkbox" id="normalToggle" data-model="normal" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <p>Standard person and object detection</p>
+                <div class="model-stats">
+                    <span>Confidence: <strong id="normalConfidence">75%</strong></span>
+                    <input type="range" id="normalConfidenceSlider" min="50" max="95" value="75" class="confidence-slider">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Selection -->
+    <div class="camera-selection-section">
+        <h2>Camera Selection</h2>
+        <div class="form-group">
+            <label for="cameraSelect">Select Camera for Testing:</label>
+            <select id="cameraSelect" class="form-input">
+                <option value="">-- Select Camera --</option>
+                {% for camera in cameras %}
+                <option value="{{ camera.id }}">{{ camera.name }} - {{ camera.location }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="camera-controls">
+            <button id="startCameraTest" class="btn btn-primary">Start Camera Test</button>
+            <button id="stopCameraTest" class="btn btn-danger" disabled>Stop Camera Test</button>
+        </div>
+    </div>
+
+    <!-- Live Test Feed -->
+    <div class="live-test-section" id="liveTestSection" style="display: none;">
+        <h2>Live Test Feed</h2>
+        <div class="test-feed-container">
+            <div class="feed-placeholder" id="testFeedPlaceholder">
+                <p>Start camera test to view live detection feed</p>
+            </div>
+            <img id="testLiveFeed" style="display: none; max-width: 100%; border-radius: 8px;">
+        </div>
+        <div class="test-feed-stats">
+            <div class="feed-stat">
+                <span class="stat-label">Active Models:</span>
+                <span class="stat-value" id="activeModels">None</span>
+            </div>
+            <div class="feed-stat">
+                <span class="stat-label">Detections:</span>
+                <span class="stat-value" id="testDetections">0</span>
+            </div>
+            <div class="feed-stat">
+                <span class="stat-label">FPS:</span>
+                <span class="stat-value" id="testFPS">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload Section -->
+        <!-- File Upload Section -->
+    <div class="upload-section">
+        <h2>Upload Media for Testing</h2>
+        
+        <!-- Model Selection for Upload Testing -->
+        <div class="upload-model-controls">
+            <h3>Select Models to Test:</h3>
+            <div class="upload-model-grid">
+                <div class="upload-model-option">
+                    <label class="model-checkbox">
+                        <input type="checkbox" id="uploadFight" data-model="fight" checked>
+                        <span class="checkmark"></span>
+                        🥊 Fight Detection
+                    </label>
+                </div>
+                <div class="upload-model-option">
+                    <label class="model-checkbox">
+                        <input type="checkbox" id="uploadSleep" data-model="sleep" checked>
+                        <span class="checkmark"></span>
+                        😴 Sleep Detection
+                    </label>
+                </div>
+                <div class="upload-model-option">
+                    <label class="model-checkbox">
+                        <input type="checkbox" id="uploadSuspicious" data-model="suspicious" checked>
+                        <span class="checkmark"></span>
+                        👀 Suspicious Behavior
+                    </label>
+                </div>
+                <div class="upload-model-option">
+                    <label class="model-checkbox">
+                        <input type="checkbox" id="uploadNormal" data-model="normal" checked>
+                        <span class="checkmark"></span>
+                        👥 Normal Detection
+                    </label>
+                </div>
+            </div>
+            <div class="upload-model-actions">
+                <button id="selectAllModels" class="btn btn-small btn-secondary">Select All</button>
+                <button id="deselectAllModels" class="btn btn-small btn-secondary">Deselect All</button>
+            </div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;">
+            <div class="upload-placeholder">
+                <div class="upload-icon">📁</div>
+                <p>Drag & drop or click to upload image/video</p>
+                <small>Supported formats: JPG, PNG, MP4, AVI, MOV (Max 50MB)</small>
+            </div>
+        </div>
+        <button onclick="processUpload()" class="btn btn-primary" id="processBtn" disabled>Process Detection with Selected Models</button>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" id="resultsSection" style="display: none;">
+        <h2>Detection Results</h2>
+        
+        <div class="results-grid">
+            <div class="result-card">
+                <h3>Original Media</h3>
+                <div class="media-container">
+                    <img id="originalImage" style="max-width: 100%; display: none;">
+                    <video id="originalVideo" controls style="max-width: 100%; display: none;"></video>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h3>Detection Result</h3>
+                <div class="media-container">
+                    <img id="resultImage" style="max-width: 100%; display: none;">
+                    <video id="resultVideo" controls style="max-width: 100%; display: none;"></video>
+                </div>
+            </div>
+        </div>
+
+        <div class="detection-stats">
+            <h3>Detection Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Total Detections:</span>
+                    <span class="stat-value" id="totalDetections">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Students Detected:</span>
+                    <span class="stat-value" id="studentsDetected">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Average Confidence:</span>
+                    <span class="stat-value" id="avgConfidence">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Processing Device:</span>
+                    <span class="stat-value" id="processingDevice">{% if cuda_available %}GPU{% else %}CPU{% endif %}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Processing Time:</span>
+                    <span class="stat-value" id="processingTime">0s</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detection-details">
+            <h3>Detection Details</h3>
+            <div class="details-table-container">
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Confidence</th>
+                            <th>Bounding Box</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detectionsTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Anomaly Alerts -->
+<div class="anomaly-alerts" id="testAnomalyAlerts" style="display: none;">
+    <h3>Test Anomaly Detections</h3>
+    <div id="testAnomalyList"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/test.js') }}"></script>
+{% endblock %}

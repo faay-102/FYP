@@ -1,0 +1,13 @@
+flask==2.3.3
+flask-sqlalchemy==3.0.5
+flask-login==0.6.3
+flask-wtf==1.1.1
+bcrypt==4.0.1
+email-validator==2.1.0
+opencv-python==4.8.1.78
+ultralytics==8.0.186
+torch==2.0.1
+torchvision==0.15.2
+numpy==1.24.3
+werkzeug==2.3.7
+python-dotenv==1.0.0

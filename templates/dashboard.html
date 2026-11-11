@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Security Dashboard</h1>
+    <div class="dashboard-controls">
+        <div class="status-indicator">
+            <span id="monitoringStatus" class="status-dot offline"></span>
+            <span id="monitoringText">Monitoring Offline</span>
+        </div>
+        <button id="addCameraBtn" class="btn btn-primary">Add Camera</button>
+        <button id="startAllMonitoring" class="btn btn-success">Start All Cameras</button>
+        <button id="stopAllMonitoring" class="btn btn-danger">Stop All Cameras</button>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="stats-card">
+        <h3>Today's Incidents</h3>
+        <div class="stat-number">{{ today_incidents }}</div>
+        <div class="stat-label">Total Today</div>
+    </div>
+    
+    <div class="stats-card">
+        <h3>Total Incidents</h3>
+        <div class="stat-number">{{ total_incidents }}</div>
+        <div class="stat-label">All Time</div>
+    </div>
+    
+    <div class="stats-card">
+        <h3>Active Cameras</h3>
+        <div class="stat-number">{{ active_cameras }}</div>
+        <div class="stat-label">Online</div>
+    </div>
+    
+    <div class="stats-card">
+        <h3>System Status</h3>
+        <div class="status-item">
+            <span>AI Models:</span>
+            <span class="{% if model_loaded %}status-good{% else %}status-bad{% endif %}">
+                {% if model_loaded %}Loaded{% else %}Offline{% endif %}
+            </span>
+        </div>
+        <div class="status-item">
+            <span>Processing:</span>
+            <span class="{% if cuda_available %}status-good{% else %}status-warning{% endif %}">
+                {% if cuda_available %}GPU{% else %}CPU{% endif %}
+            </span>
+        </div>
+        <div class="status-item">
+            <span>Monitoring:</span>
+            <span class="status-bad" id="currentStatus">Inactive</span>
+        </div>
+    </div>
+</div>
+
+<!-- Multi-Camera Monitoring Section -->
+<div class="multi-camera-section">
+    <h2>Multi-Camera Monitoring</h2>
+    <div class="cameras-grid" id="camerasGrid">
+        {% for camera in cameras %}
+        <div class="camera-monitor-card" data-camera-id="{{ camera.id }}">
+            <div class="camera-header">
+                <h3>{{ camera.name }}</h3>
+                <span class="camera-location">{{ camera.location }}</span>
+                <span class="camera-status offline" id="status-{{ camera.id }}">OFFLINE</span>
+            </div>
+            
+            <div class="camera-feed">
+                <div class="feed-placeholder" id="feedPlaceholder-{{ camera.id }}">
+                    <p>Camera offline</p>
+                </div>
+                <img id="liveFeed-{{ camera.id }}" style="display: none; max-width: 100%; border-radius: 4px;">
+            </div>
+            
+            <div class="camera-controls">
+                <div class="control-buttons">
+                    <button class="btn btn-small btn-primary start-camera" data-camera-id="{{ camera.id }}">Start</button>
+                    <button class="btn btn-small btn-danger stop-camera" data-camera-id="{{ camera.id }}" disabled>Stop</button>
+                    <button class="btn btn-small btn-warning remove-camera" data-camera-id="{{ camera.id }}">Remove</button>
+                </div>
+                
+                <div class="model-controls">
+                    <div class="model-toggle">
+                        <label>
+                            <input type="checkbox" class="model-checkbox" data-camera-id="{{ camera.id }}" data-model="fight">
+                            Fight
+                        </label>
+                    </div>
+                    <div class="model-toggle">
+                        <label>
+                            <input type="checkbox" class="model-checkbox" data-camera-id="{{ camera.id }}" data-model="sleep">
+                            Sleep
+                        </label>
+                    </div>
+                    <div class="model-toggle">
+                        <label>
+                            <input type="checkbox" class="model-checkbox" data-camera-id="{{ camera.id }}" data-model="suspicious">
+                            Suspicious
+                        </label>
+                    </div>
+                    <div class="model-toggle">
+                        <label>
+                            <input type="checkbox" class="model-checkbox" data-camera-id="{{ camera.id }}" data-model="normal" checked>
+                            Normal
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="camera-stats">
+                <div class="stat">
+                    <span class="stat-label">Detections:</span>
+                    <span class="stat-value" id="detections-{{ camera.id }}">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">FPS:</span>
+                    <span class="stat-value" id="fps-{{ camera.id }}">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Anomalies:</span>
+                    <span class="stat-value" id="anomalies-{{ camera.id }}">0</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="dashboard-content">
+    <div class="content-grid">
+        <div class="recent-incidents">
+            <h2>Recent Incidents</h2>
+            <div class="incidents-list">
+                {% if recent_incidents %}
+                    {% for incident in recent_incidents %}
+                    <div class="incident-card severity-{{ incident.severity }}">
+                        <div class="incident-header">
+                            <span class="incident-title">{{ incident.title }}</span>
+                            <span class="incident-severity {{ incident.severity }}">{{ incident.severity|upper }}</span>
+                        </div>
+                        <div class="incident-details">
+                            <span class="incident-location">{{ incident.location }}</span>
+                            <span class="incident-time">{{ incident.created_at.strftime('%H:%M') }}</span>
+                        </div>
+                        <div class="incident-confidence">
+                            Confidence: {{ (incident.confidence_score * 100)|round|int }}%
+                        </div>
+                        {% if incident.frame_evidence %}
+                        <div class="incident-evidence">
+                            <img src="data:image/jpeg;base64,{{ incident.frame_evidence }}" 
+                                 alt="Incident Evidence" 
+                                 class="evidence-image"
+                                 onclick="showEvidence(this)">
+                        </div>
+                        {% elif incident.video_evidence_path %}
+                        <div class="incident-evidence">
+                            <img src="/get_result_file/{{ incident.video_evidence_path }}" 
+                                 alt="Incident Evidence" 
+                                 class="evidence-image"
+                                 onclick="showEvidence(this)">
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-incidents">
+                        <p>No recent incidents</p>
+                    </div>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('incidents') }}" class="btn btn-secondary btn-small">View All Incidents</a>
+        </div>
+        
+        <div class="system-alerts">
+            <h2>Live Alerts</h2>
+            <div class="alerts-container" id="alertsContainer">
+                <div class="no-alerts">
+                    <p>No active alerts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Camera Modal -->
+<div id="addCameraModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Camera</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="cameraForm">
+                <div class="form-group">
+                    <label for="cameraName">Camera Name *</label>
+                    <input type="text" id="cameraName" name="name" required class="form-input" placeholder="e.g., Main Entrance Camera">
+                </div>
+                <div class="form-group">
+                    <label for="cameraLocation">Location *</label>
+                    <input type="text" id="cameraLocation" name="location" required class="form-input" placeholder="e.g., Main Gate, Library">
+                </div>
+                <div class="form-group">
+                    <label for="cameraSource">Camera Source *</label>
+                    <select id="cameraSource" name="source_type" class="form-input" required>
+                        <option value="">-- Select Source --</option>
+                        <option value="webcam">Built-in Webcam</option>
+                        <option value="external">External USB Camera</option>
+                        <option value="ip">IP Camera / Stream URL</option>
+                    </select>
+                </div>
+                <div id="webcamDevices" class="form-group" style="display: none;">
+                    <label for="webcamSelect">Select Camera Device *</label>
+                    <select id="webcamSelect" name="device_id" class="form-input">
+                        <option value="">Loading cameras...</option>
+                    </select>
+                </div>
+                <div id="streamUrlGroup" class="form-group" style="display: none;">
+                    <label for="cameraStreamUrl">Stream URL *</label>
+                    <input type="text" id="cameraStreamUrl" name="stream_url" class="form-input" placeholder="rtsp:// or http://">
+                </div>
+                <div class="form-group">
+                    <label>Active Models</label>
+                    <div class="model-toggles">
+                        <label class="model-toggle">
+                            <input type="checkbox" name="models" value="normal" checked>
+                            Normal Detection
+                        </label>
+                        <label class="model-toggle">
+                            <input type="checkbox" name="models" value="fight">
+                            Fight Detection
+                        </label>
+                        <label class="model-toggle">
+                            <input type="checkbox" name="models" value="sleep">
+                            Sleep Detection
+                        </label>
+                        <label class="model-toggle">
+                            <input type="checkbox" name="models" value="suspicious">
+                            Suspicious Activity
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Detection Settings</label>
+                    <div class="detection-settings">
+                        <div class="setting-item">
+                            <label for="incidentDelay">Auto-Incident Delay (seconds)</label>
+                            <input type="number" id="incidentDelay" name="incident_delay" value="5" min="1" max="60">
+                        </div>
+                        <div class="setting-item">
+                            <label for="confidenceThreshold">Confidence Threshold (%)</label>
+                            <input type="range" id="confidenceThreshold" name="confidence_threshold" min="50" max="95" value="75">
+                            <span id="confidenceValue">75%</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="saveCamera" class="btn btn-primary">Add Camera</button>
+            <button class="btn btn-secondary close-modal">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Evidence Modal -->
+<div id="evidenceModal" class="modal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h3>Incident Evidence</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <img id="evidenceImage" src="" style="max-width: 100%; max-height: 70vh;">
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

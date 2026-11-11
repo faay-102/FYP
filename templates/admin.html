@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Admin Panel</h1>
+    <p>System administration and management</p>
+</div>
+
+<div class="admin-tabs">
+    <div class="tab-buttons">
+        <button class="tab-button active" data-tab="users">Users</button>
+        <button class="tab-button" data-tab="cameras">Cameras</button>
+        <button class="tab-button" data-tab="system">System Logs</button>
+        <button class="tab-button" data-tab="analytics">Analytics</button>
+    </div>
+
+    <div class="tab-content">
+        <!-- Users Tab -->
+        <div id="users-tab" class="tab-pane active">
+            <div class="tab-header">
+                <h3>User Management</h3>
+                <button id="addUser" class="btn btn-primary">Add User</button>
+            </div>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="role-badge {{ user.role }}">{{ user.role|upper }}</span>
+                            </td>
+                            <td>{{ user.department or 'N/A' }}</td>
+                            <td>
+                                <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}">
+                                    {% if user.is_active %}ACTIVE{% else %}INACTIVE{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-edit-user" data-id="{{ user.id }}">Edit</button>
+                                    {% if user.id != current_user.id %}
+                                        <button class="btn-action btn-delete-user" data-id="{{ user.id }}">Delete</button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cameras Tab -->
+        <div id="cameras-tab" class="tab-pane">
+            <div class="tab-header">
+                <h3>Camera Management</h3>
+                <button id="addCamera" class="btn btn-primary">Add Camera</button>
+            </div>
+            <div class="cameras-grid">
+                {% for camera in cameras %}
+                <div class="camera-card">
+                    <div class="camera-header">
+                        <h4>{{ camera.location }}</h4>
+                        <span class="camera-status {{ camera.status }}">{{ camera.status|upper }}</span>
+                    </div>
+                    <div class="camera-details">
+                        <p><strong>Stream URL:</strong> {{ camera.stream_url or 'Not configured' }}</p>
+                        <p><strong>Added:</strong> {{ camera.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                    <div class="camera-actions">
+                        <button class="btn-action btn-edit-camera" data-id="{{ camera.id }}">Edit</button>
+                        <button class="btn-action btn-delete-camera" data-id="{{ camera.id }}">Delete</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- System Logs Tab -->
+        <div id="system-tab" class="tab-pane">
+            <div class="tab-header">
+                <h3>System Logs</h3>
+                <button id="refreshLogs" class="btn btn-secondary">Refresh</button>
+            </div>
+            <div class="logs-container">
+                <div class="logs-list" id="systemLogs">
+                    <!-- Logs will be loaded via JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-tab" class="tab-pane">
+            <div class="tab-header">
+                <h3>System Analytics</h3>
+            </div>
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>Incident Statistics</h4>
+                    <div id="incidentStats" class="stats-chart">
+                        <!-- Chart will be loaded via JavaScript -->
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>User Activity</h4>
+                    <div id="userActivity" class="stats-chart">
+                        <!-- Chart will be loaded via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="userModalTitle">Add User</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label for="userUsername">Username *</label>
+                    <input type="text" id="userUsername" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email *</label>
+                    <input type="email" id="userEmail" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Password {% if not userId %}*{% endif %}</label>
+                    <input type="password" id="userPassword" {% if not userId %}required{% endif %} class="form-input">
+                    <small>{% if userId %}Leave blank to keep current password{% endif %}</small>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Role *</label>
+                    <select id="userRole" required class="form-input">
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="security">Security</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userDepartment">Department</label>
+                    <input type="text" id="userDepartment" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="userActive">
+                        <input type="checkbox" id="userActive" checked> Active User
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="saveUser" class="btn btn-primary">Save User</button>
+            <button class="btn btn-secondary close-modal">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Camera Modal -->
+<div id="cameraModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="cameraModalTitle">Add Camera</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="cameraForm">
+                <input type="hidden" id="cameraId">
+                <div class="form-group">
+                    <label for="cameraLocation">Location *</label>
+                    <input type="text" id="cameraLocation" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="cameraStreamUrl">Stream URL</label>
+                    <input type="text" id="cameraStreamUrl" class="form-input" placeholder="rtsp:// or http://">
+                </div>
+                <div class="form-group">
+                    <label for="cameraStatus">Status</label>
+                    <select id="cameraStatus" class="form-input">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="saveCamera" class="btn btn-primary">Save Camera</button>
+            <button class="btn btn-secondary close-modal">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

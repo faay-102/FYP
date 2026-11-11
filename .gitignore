@@ -1,0 +1,26 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Database files (database is initialized automatically on app startup)
+*.db
+*.sqlite3
+
+# Temporary run outputs and uploaded test files
+static/uploads/*
+!static/uploads/.gitkeep
+runs/*
+!runs/.gitkeep
+
+# Operating System & IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

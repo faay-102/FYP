@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Incidents{% endblock %}
+
+{% block content %}
+<div class="incidents-header">
+    <h1>Security Incidents</h1>
+    <div class="header-controls">
+        <button id="reportIncident" class="btn btn-primary">Report New Incident</button>
+        <button id="clearIncidents" class="btn btn-danger">Clear All Incidents</button>
+    </div>
+</div>
+
+<div class="incidents-controls">
+    <div class="filter-group">
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter" class="form-input">
+            <option value="all">All Status</option>
+            <option value="reported">Reported</option>
+            <option value="investigating">Investigating</option>
+            <option value="resolved">Resolved</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="severityFilter">Severity:</label>
+        <select id="severityFilter" class="form-input">
+            <option value="all">All Severity</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+        </select>
+    </div>
+    <button id="applyFilters" class="btn btn-secondary">Apply Filters</button>
+</div>
+
+<div class="incidents-list">
+    <div class="incidents-table-container">
+        <table class="incidents-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Reported By</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="incidentsTableBody">
+                {% for incident in incidents %}
+                <tr class="incident-row severity-{{ incident.severity }}">
+                    <td>{{ incident.id }}</td>
+                    <td>{{ incident.title }}</td>
+                    <td>{{ incident.incident_type }}</td>
+                    <td>
+                        <span class="severity-badge {{ incident.severity }}">
+                            {{ incident.severity|upper }}
+                        </span>
+                    </td>
+                    <td>{{ incident.location or 'N/A' }}</td>
+                    <td>
+                        <span class="status-badge {{ incident.status }}">
+                            {{ incident.status|upper }}
+                        </span>
+                    </td>
+                    <td>{{ incident.reported_by.username if incident.reported_by else 'System' }}</td>
+                    <td>{{ incident.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            {% if current_user.role in ['admin', 'security'] %}
+                                <button class="btn-action btn-edit" data-id="{{ incident.id }}" data-status="{{ incident.status }}">Update</button>
+                            {% endif %}
+                            {% if current_user.role == 'admin' %}
+                                <button class="btn-action btn-delete" data-id="{{ incident.id }}">Delete</button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Report Incident Modal -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Report New Incident</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="incidentForm">
+                <div class="form-group">
+                    <label for="incidentTitle">Title *</label>
+                    <input type="text" id="incidentTitle" name="title" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="incidentDescription">Description</label>
+                    <textarea id="incidentDescription" name="description" class="form-input" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="incidentType">Type *</label>
+                    <select id="incidentType" name="type" required class="form-input">
+                        <option value="unauthorized_access">Unauthorized Access</option>
+                        <option value="crowd">Crowd Gathering</option>
+                        <option value="loitering">Loitering</option>
+                        <option value="potential_altercation">Potential Altercation</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="incidentSeverity">Severity *</label>
+                    <select id="incidentSeverity" name="severity" required class="form-input">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="incidentLocation">Location</label>
+                    <input type="text" id="incidentLocation" name="location" class="form-input">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="submitIncident" class="btn btn-primary">Submit Report</button>
+            <button class="btn btn-secondary close-modal">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div id="updateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Update Incident Status</h3>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="statusUpdate">New Status</label>
+                <select id="statusUpdate" class="form-input">
+                    <option value="reported">Reported</option>
+                    <option value="investigating">Investigating</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="confirmUpdate" class="btn btn-primary">Update Status</button>
+            <button class="btn btn-secondary close-modal">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.currentUserRole = "{{ current_user.role }}";
+</script>
+<script src="{{ url_for('static', filename='js/incidents.js') }}"></script>
+{% endblock %}

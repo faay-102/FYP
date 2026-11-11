@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}CampusGuard AI - Login{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Login to CampusGuard</h1>
+            <p>Access the campus security monitoring system</p>
+        </div>
+        
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required class="form-input">
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">Login</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+        </div>
+        
+        <div class="demo-accounts">
+            <h3>Demo Accounts:</h3>
+            <div class="demo-account">
+                <strong>Admin:</strong> admin / admin123
+            </div>
+            <div class="demo-account">
+                <strong>Security:</strong> security / security123
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
