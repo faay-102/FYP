@@ -8,6 +8,10 @@ venv/
 env/
 .venv/
 
+# Environment Variables & Secrets
+.env
+.env.local
+
 # Database files (database is initialized automatically on app startup)
 *.db
 *.sqlite3

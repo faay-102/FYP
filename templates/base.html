@@ -52,11 +52,12 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <h2>🛡️ CampusGuard AI</h2>
+                <h2>CampusGuard AI</h2>
             </div>
             <div class="nav-menu">
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                    <a href="{{ url_for('guard_portal') }}" class="nav-link {% if request.endpoint == 'guard_portal' %}active{% endif %}">Guard Patrol</a>
                     <a href="{{ url_for('test') }}" class="nav-link {% if request.endpoint == 'test' %}active{% endif %}">Test Model</a>
                     <a href="{{ url_for('incidents') }}" class="nav-link {% if request.endpoint == 'incidents' %}active{% endif %}">Incidents</a>
                     {% if current_user.role == 'admin' %}
@@ -95,7 +96,7 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 CampusGuard AI - Delhi Technical Campus. All rights reserved.</p>
+            <p>&copy; 2026 CampusGuard AI - Autonomous Campus Security & Surveillance Framework. All rights reserved.</p>
             <div class="system-status">
                 <span class="status-indicator {% if model_loaded %}online{% else %}offline{% endif %}"></span>
                 <span>AI Model: {% if model_loaded %}Loaded{% else %}Offline{% endif %}</span>

@@ -735,6 +735,68 @@ def incidents():
     incidents_list = Incident.query.order_by(Incident.created_at.desc()).all()
     return render_template('incidents.html', incidents=incidents_list)
 
+@app.route('/guard')
+@login_required
+def guard_portal():
+    """Mobile patrol interface for on-duty security guards."""
+    active_incidents = Incident.query.filter(
+        Incident.status.in_(['reported', 'investigating'])
+    ).order_by(Incident.created_at.desc()).all()
+    return render_template('guard.html', incidents=active_incidents)
+
+@app.route('/api/guard/alerts', methods=['GET'])
+@login_required
+def api_guard_alerts():
+    """Real-time incident polling for mobile guard patrol interface."""
+    try:
+        active_incidents = Incident.query.filter(
+            Incident.status.in_(['reported', 'investigating'])
+        ).order_by(Incident.created_at.desc()).limit(20).all()
+        
+        return jsonify({
+            'success': True,
+            'count': len(active_incidents),
+            'incidents': [{
+                'id': inc.id,
+                'title': inc.title,
+                'type': inc.incident_type,
+                'severity': inc.severity,
+                'location': inc.location or 'General Campus Zone',
+                'status': inc.status,
+                'confidence': round(inc.confidence_score * 100, 1) if inc.confidence_score else 0,
+                'time': inc.created_at.strftime('%H:%M:%S'),
+                'description': inc.description,
+                'frame_b64': inc.frame_evidence if inc.frame_evidence else '',
+                'evidence_path': inc.video_evidence_path or ''
+            } for inc in active_incidents]
+        })
+    except Exception as e:
+        logger.error(f"Error fetching guard alerts: {e}")
+        return jsonify({'success': False, 'message': str(e), 'incidents': []}), 500
+
+@app.route('/api/guard/respond/<int:incident_id>', methods=['POST'])
+@login_required
+def api_guard_respond(incident_id):
+    """Allows patrolling officer to acknowledge, dispatch, or resolve an incident."""
+    try:
+        incident = db.session.get(Incident, incident_id)
+        if not incident:
+            return jsonify({'success': False, 'message': 'Incident not found'}), 404
+            
+        data = request.get_json(silent=True) or {}
+        new_status = data.get('status', 'investigating')
+        
+        incident.status = new_status
+        if new_status == 'resolved':
+            incident.resolved_at = datetime.utcnow()
+            
+        db.session.commit()
+        log_system_action(f"Officer {current_user.username} updated incident #{incident_id} to '{new_status}'", "GuardPatrol")
+        return jsonify({'success': True, 'message': f'Incident marked as {new_status}'})
+    except Exception as e:
+        logger.error(f"Error updating incident status: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 # API Routes
 @app.route('/api/available_cameras')
 @login_required
