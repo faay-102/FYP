@@ -4,49 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CampusGuard AI - Campus Security System{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3.0">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
     <style>
-        #videoBackground {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
-
-        
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            /* background: linear-gradient(135deg, rgba(26, 26, 26, 0.4) 0%, rgba(45, 45, 45, 0.3) 100%); */
-        }
-        
         .navbar, .main-content, .footer, .flash-messages, .auth-container {
             position: relative;
             z-index: 10;
         }
-        
-        .auth-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
     </style>
 </head>
 <body>
-    <!-- Video Background -->
-    <video autoplay muted loop playsinline id="videoBackground">
-        <source src="{{ url_for('static', filename='videos/background.mp4') }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
+    <!-- CCTV Campus Surveillance HUD Ambient Background -->
+    <div class="cctv-hud-backdrop">
+        <div class="cctv-scanline"></div>
+        <div class="cctv-grid-layer"></div>
+        <div class="cctv-viewfinder-corner top-left"></div>
+        <div class="cctv-viewfinder-corner top-right"></div>
+        <div class="cctv-viewfinder-corner bottom-left"></div>
+        <div class="cctv-viewfinder-corner bottom-right"></div>
+        <div class="cctv-telemetry-badge top-left-badge">
+            <span class="cctv-rec-dot"></span>
+            <span>LIVE CCTV NET // CAMPUS WIDE [ONLINE]</span>
+        </div>
+        <div class="cctv-telemetry-badge top-right-badge">
+            <span>SEC_MONITOR_ACTIVE // YOLOv11 AI ENGINE</span>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="navbar">
@@ -108,29 +95,6 @@
 
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
-    
-    <!-- Video Load Check Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('videoBackground');
-            
-            if (video) {
-                // Check if video loads successfully
-                video.addEventListener('loadeddata', function() {
-                    console.log('✅ Background video loaded successfully');
-                });
-                
-                video.addEventListener('error', function() {
-                    console.log('❌ Background video failed to load');
-                });
-                
-                // Force play for mobile devices
-                video.play().catch(function(error) {
-                    console.log('Video autoplay prevented:', error);
-                });
-            }
-        });
-    </script>
     
     {% block scripts %}{% endblock %}
 </body>
