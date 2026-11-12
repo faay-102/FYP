@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=5.0">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
     <style>
         .navbar, .main-content, .footer, .flash-messages, .auth-container {
@@ -18,12 +18,13 @@
     </style>
 </head>
 <body>
+    {% if not hide_navbar %}
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
+            <a href="{{ url_for('dashboard') }}" class="nav-logo">
                 <h2>CampusGuard AI</h2>
-            </div>
+            </a>
             <div class="nav-menu">
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
@@ -44,6 +45,7 @@
             </div>
         </div>
     </nav>
+    {% endif %}
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -59,10 +61,11 @@
     {% endwith %}
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content {% if hide_navbar %}auth-fullscreen{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
+    {% if not hide_navbar %}
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -75,6 +78,7 @@
             </div>
         </div>
     </footer>
+    {% endif %}
 
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>

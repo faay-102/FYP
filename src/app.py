@@ -646,7 +646,9 @@ def process_camera_stream(camera_id, stream_url):
 # Routes
 @app.route('/')
 def home():
-    return render_template('home.html')
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('auth.login'))
 
 @app.route('/dashboard')
 @login_required
