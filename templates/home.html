@@ -76,19 +76,4 @@
         </div>
     </div>
 </section>
-
-{% if not current_user.is_authenticated %}
-<section class="auth-prompt">
-    <div class="container">
-        <div class="auth-content">
-            <h2>Get Started with CampusGuard</h2>
-            <p>Login or register to access the security dashboard and monitoring tools</p>
-            <div class="auth-buttons">
-                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to System</a>
-                <a href="{{ url_for('auth.register') }}" class="btn btn-secondary">Create Account</a>
-            </div>
-        </div>
-    </div>
-</section>
-{% endif %}
 {% endblock %}

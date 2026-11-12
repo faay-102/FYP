@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from database import db, User, SystemLog
+try:
+    from .database import db, User, SystemLog
+except ImportError:
+    from database import db, User, SystemLog
 from datetime import datetime
 
 auth = Blueprint('auth', __name__)
@@ -90,3 +93,4 @@ def register():
         return redirect(url_for('auth.login'))
     
     return render_template('register.html')
+

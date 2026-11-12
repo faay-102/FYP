@@ -12,10 +12,15 @@ import threading
 import queue
 import torch
 import logging
-from database import db, User, Camera, Incident, AnomalyDetection, SystemLog, CameraMonitor
-from auth import auth
-from flask_login import LoginManager, current_user, login_required
 
+try:
+    from .database import db, User, Camera, Incident, AnomalyDetection, SystemLog, CameraMonitor
+    from .auth import auth
+except ImportError:
+    from database import db, User, Camera, Incident, AnomalyDetection, SystemLog, CameraMonitor
+    from auth import auth
+
+from flask_login import LoginManager, current_user, login_required
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -35,11 +40,25 @@ except Exception:
     # If anything fails here, we still continue — this only controls verbosity
     pass
 
-app = Flask(__name__)
+# Base directories setup
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# If running inside a subfolder like src/, point to repository root
+if os.path.basename(BASE_DIR) in ['src', 'app', 'tests']:
+    BASE_DIR = os.path.abspath(os.path.join(BASE_DIR, '..'))
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
+instance_dir = os.path.join(BASE_DIR, 'instance')
+os.makedirs(instance_dir, exist_ok=True)
+db_path = os.path.join(instance_dir, 'campus_guard.db')
+
 app.config['SECRET_KEY'] = 'campus-guard-secret-key-2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///campus_guard.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
 
 # Initialize extensions
@@ -62,7 +81,7 @@ def load_user(user_id):
 
 # Ensure directories exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-os.makedirs('runs/detect', exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, 'runs', 'detect'), exist_ok=True)
 
 # CUDA Device setup
 def setup_device():
@@ -93,10 +112,10 @@ last_frames = {}
 def load_models():
     models = {}
     model_paths = {
-        'fight': 'models/fight.pt',
-        'sleep': 'models/sleep.pt', 
-        'suspicious': 'models/yolov11m.pt',
-        'normal': 'models/yolov11s.pt'
+        'fight': os.path.join(BASE_DIR, 'models', 'fight.pt'),
+        'sleep': os.path.join(BASE_DIR, 'models', 'sleep.pt'), 
+        'suspicious': os.path.join(BASE_DIR, 'models', 'yolov11m.pt'),
+        'normal': os.path.join(BASE_DIR, 'models', 'yolov11s.pt')
     }
     
     for model_name, model_path in model_paths.items():
@@ -104,7 +123,7 @@ def load_models():
             if not os.path.exists(model_path):
                 logger.warning(f"⚠️ Model file not found: {model_path}, using fallback")
                 # Use normal model as fallback
-                model_path = 'models/yolov11s.pt'
+                model_path = os.path.join(BASE_DIR, 'models', 'yolov11s.pt')
                 if not os.path.exists(model_path):
                     continue
             
@@ -152,14 +171,8 @@ def normalize_frame_for_imencode(img):
             img = img[:, :, :3]
 
         # If RGB, convert to BGR for OpenCV encoding/display
-        # Heuristic: many libraries use RGB ordering; assume RGB if colors look like RGB by dtype
-        # We'll attempt a safe swap: if the image first pixel seems more red than blue, swap.
         try:
             if img.ndim == 3 and img.shape[2] == 3:
-                # If values look like typical 0-255, decide ordering by average channels
-                ch0, ch1, ch2 = img[0, 0, 0], img[0, 0, 1], img[0, 0, 2]
-                # If first channel appears to be R (heuristic), swap to BGR
-                # This is conservative; always perform swap because many model.plot() outputs RGB
                 img = img[:, :, ::-1]
         except Exception:
             pass
@@ -254,15 +267,10 @@ def detect_fight_anomaly(detected_objects, frame, confidence):
 
 def detect_sleep_anomaly(detected_objects, frame, confidence):
     """Detect sleeping behavior"""
-    # Log confidence for debugging
     logger.info(f"🛏️ Sleep detection check: objects={detected_objects}, confidence={confidence}")
-
-    # Simplified sleep detection - in real scenario, use pose estimation
-    # Using very low threshold for sleep detection since sleeping poses are subtle
-    if 'person' in detected_objects and confidence > 0.25:  # Much lower threshold
+    if 'person' in detected_objects and confidence > 0.25:
         logger.info(f"🛏️ Sleep detected with confidence {confidence}")
-        # Boost confidence significantly for sleep detection to ensure it creates incidents
-        adjusted_conf = min(0.95, confidence * 2.0)  # Higher boost and cap
+        adjusted_conf = min(0.95, confidence * 2.0)
         return {
             'type': 'sleep_detected', 
             'confidence': adjusted_conf,
@@ -285,18 +293,15 @@ def detect_suspicious_behavior(camera_id, detected_persons, frame):
         person_id = f"{camera_id}_{i}"
         
         if person_id not in person_tracking[camera_id]:
-            # New person detected
             person_tracking[camera_id][person_id] = {
                 'first_seen': current_time,
                 'last_seen': current_time,
                 'bbox': person['bbox']
             }
         else:
-            # Update existing person
             person_tracking[camera_id][person_id]['last_seen'] = current_time
             person_tracking[camera_id][person_id]['bbox'] = person['bbox']
             
-            # Check if person has been there for more than 4 minutes
             time_delta = current_time - person_tracking[camera_id][person_id]['first_seen']
             if time_delta.total_seconds() > 240:  # 4 minutes
                 incident = {
@@ -307,14 +312,12 @@ def detect_suspicious_behavior(camera_id, detected_persons, frame):
                     'person_id': person_id
                 }
                 suspicious_incidents.append(incident)
-                
-                # Reset tracking for this person
                 person_tracking[camera_id][person_id]['first_seen'] = current_time
     
     # Clean up old tracks (people who left)
     current_tracking = person_tracking[camera_id].copy()
     for person_id, track in current_tracking.items():
-        if (current_time - track['last_seen']).total_seconds() > 30:  # 30 seconds timeout
+        if (current_time - track['last_seen']).total_seconds() > 30:
             del person_tracking[camera_id][person_id]
     
     return suspicious_incidents
@@ -325,9 +328,7 @@ def process_camera_stream(camera_id, stream_url):
 
     logger.info(f"🎥 Starting stream processing for camera {camera_id}")
 
-    # Fetch camera record inside an application context
     with app.app_context():
-        # use session.get to avoid Query.get deprecation warnings
         camera = db.session.get(Camera, camera_id)
     if not camera:
         logger.error(f"❌ Camera {camera_id} not found")
@@ -335,7 +336,6 @@ def process_camera_stream(camera_id, stream_url):
     
     if camera.source_type in ['webcam', 'external']:
         try:
-            # Use device_id if specified, otherwise fallback to index
             if camera.device_id is None or str(camera.device_id).strip() == '':
                 device_idx = 0
             else:
@@ -346,7 +346,6 @@ def process_camera_stream(camera_id, stream_url):
                     current_streams[camera_id] = False
                     return
 
-            # Try several backends to open the device index (more robust across Windows builds)
             backends_to_try = [cv2.CAP_DSHOW, cv2.CAP_MSMF, cv2.CAP_VFW, cv2.CAP_ANY]
             cap = None
             for backend in backends_to_try:
@@ -362,10 +361,8 @@ def process_camera_stream(camera_id, stream_url):
                     logger.debug(f"Debug: backend {backend} failed for device {device_idx}: {e}")
                     continue
 
-            # If we still couldn't open the requested device, try probing available indices as fallback
             if cap is None or not cap.isOpened():
                 logger.warning(f"⚠️ Could not open device {device_idx} for camera {camera_id}; trying to auto-find any available device as fallback")
-                # probe a few indices
                 for probe_idx in range(0, 9):
                     try:
                         probe_cap = cv2.VideoCapture(probe_idx, cv2.CAP_DSHOW)
@@ -390,7 +387,6 @@ def process_camera_stream(camera_id, stream_url):
             current_streams[camera_id] = False
             return
     else:
-        # IP camera or stream URL
         if not camera.stream_url:
             logger.error(f"❌ No stream URL provided for camera {camera_id}")
             current_streams[camera_id] = False
@@ -402,13 +398,11 @@ def process_camera_stream(camera_id, stream_url):
         current_streams[camera_id] = False
         return
     
-    # Set camera properties for better performance
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)  # Request HD resolution
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-    cap.set(cv2.CAP_PROP_FPS, 30)  # Request 30fps
+    cap.set(cv2.CAP_PROP_FPS, 30)
     
-    # Read test frame to verify settings
     ret, test_frame = cap.read()
     if ret:
         logger.info(f"Camera {camera_id} opened successfully. Frame size: {test_frame.shape}")
@@ -420,10 +414,9 @@ def process_camera_stream(camera_id, stream_url):
         ret, frame = cap.read()
         if not ret:
             logger.error(f"❌ Failed to read frame from camera {camera_id}")
-            # Try to reconnect for IP cameras
             if camera.source_type == 'ip':
                 cap.release()
-                time.sleep(5)  # Wait before retry
+                time.sleep(5)
                 cap = cv2.VideoCapture(camera.stream_url)
                 if not cap.isOpened():
                     break
@@ -435,7 +428,6 @@ def process_camera_stream(camera_id, stream_url):
         frame_count += 1
 
         try:
-            # Get active monitors for this camera (DB access in app context)
             with app.app_context():
                 active_monitors = CameraMonitor.query.filter_by(
                     camera_id=camera_id,
@@ -443,15 +435,12 @@ def process_camera_stream(camera_id, stream_url):
                 ).all()
 
             if not active_monitors:
-                # No active monitors: still enqueue a preview frame so the UI shows live feed.
                 try:
                     preview_b64 = ''
                     try:
-                        # Resize frame to a reasonable size for preview
                         resized = cv2.resize(frame, (640, 480))
                         norm_pf = normalize_frame_for_imencode(resized)
                         if norm_pf is not None:
-                            # Increase JPEG quality to 85 and add compression params
                             encode_params = [
                                 int(cv2.IMWRITE_JPEG_QUALITY), 85,
                                 int(cv2.IMWRITE_JPEG_OPTIMIZE), 1
@@ -462,7 +451,6 @@ def process_camera_stream(camera_id, stream_url):
                     except Exception as e:
                         logger.debug(f"Primary frame encoding failed: {e}")
                         try:
-                            # Fallback: try direct frame encode
                             ok, buf = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY), 85])
                             if ok:
                                 preview_b64 = base64.b64encode(buf).decode('utf-8')
@@ -484,7 +472,6 @@ def process_camera_stream(camera_id, stream_url):
                     }
                     detection_queue.put(payload_preview)
                     last_frames[camera_id] = preview_b64
-                    logger.info(f"Preview frame enqueued for camera {camera_id} (len={len(preview_b64) if preview_b64 else 0})")
                 except Exception as e:
                     logger.debug(f"Failed to enqueue preview for camera {camera_id}: {e}")
                 continue
@@ -498,11 +485,9 @@ def process_camera_stream(camera_id, stream_url):
                 if not model:
                     continue
 
-                # Run detection
                 with torch.no_grad():
                     results = model(frame, verbose=False)
 
-                # Process results
                 detected_objects = []
                 detected_persons = []
                 detection_data = []
@@ -532,7 +517,6 @@ def process_camera_stream(camera_id, stream_url):
                             except Exception:
                                 continue
 
-                # Model-specific anomaly detection
                 anomalies = []
                 if monitor.model_type == 'fight':
                     anomaly = detect_fight_anomaly(detected_objects, frame, max([d['confidence'] for d in detection_data] if detection_data else [0]))
@@ -547,23 +531,19 @@ def process_camera_stream(camera_id, stream_url):
                 elif monitor.model_type == 'suspicious':
                     anomalies = detect_suspicious_behavior(camera_id, detected_persons, frame)
 
-                # Check confidence threshold and create incidents if enough time has passed
                 for anomaly in anomalies:
                     if anomaly['confidence'] >= monitor.confidence_threshold:
-                        # Only create incident if enough time has passed since last one
                         current_time = datetime.utcnow()
-                        min_time_between_incidents = timedelta(minutes=5)  # Minimum 5 minutes between incidents
+                        min_time_between_incidents = timedelta(minutes=5)
 
                         if (not camera.last_incident or 
                             current_time - camera.last_incident > min_time_between_incidents):
 
-                            # Save frame as evidence
                             norm = normalize_frame_for_imencode(frame)
                             if norm is not None:
                                 _, buffer = cv2.imencode('.jpg', norm)
                                 frame_base64 = base64.b64encode(buffer).decode('utf-8')
                             else:
-                                # fallback to trying original frame
                                 try:
                                     _, buffer = cv2.imencode('.jpg', frame)
                                     frame_base64 = base64.b64encode(buffer).decode('utf-8')
@@ -583,7 +563,6 @@ def process_camera_stream(camera_id, stream_url):
                             )
                             with app.app_context():
                                 db.session.add(incident)
-                                # Update camera's last_incident time
                                 camera.last_incident = current_time
                                 db.session.commit()
 
@@ -592,20 +571,16 @@ def process_camera_stream(camera_id, stream_url):
                 all_detections.extend(detection_data)
                 all_anomalies.extend(anomalies)
 
-                # Draw detections on frame
                 if results and len(results) > 0:
                     processed_frame = results[0].plot()
 
-            # Calculate FPS
             current_time = time.time()
             fps = frame_count / (current_time - start_time) if (current_time - start_time) > 0 else 0
 
-            # Encode frame to JPEG/base64 here and add JSON-safe payload to queue
             frame_base64 = ''
             try:
                 if processed_frame is not None:
                     pf = processed_frame
-                    # If PIL Image, convert to numpy array
                     if hasattr(pf, 'convert') and callable(getattr(pf, 'convert')):
                         pf = np.array(pf.convert('RGB'))
 
@@ -616,13 +591,6 @@ def process_camera_stream(camera_id, stream_url):
                             pf = None
 
                     if pf is not None:
-                        # Log frame info to help debug visual artifacts
-                        try:
-                            logger.debug(f"Encoding frame: type={type(pf)} shape={getattr(pf, 'shape', None)} dtype={getattr(pf, 'dtype', None)}")
-                        except Exception:
-                            pass
-
-                        # Normalize image to uint8 BGR before encoding
                         norm_pf = normalize_frame_for_imencode(pf)
                         if norm_pf is not None:
                             try:
@@ -633,7 +601,6 @@ def process_camera_stream(camera_id, stream_url):
                             except Exception as e:
                                 logger.error(f"Error during imencode of normalized frame: {e}")
                         else:
-                            # try best-effort fallback
                             try:
                                 encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 70]
                                 success, buffer = cv2.imencode('.jpg', pf, encode_param)
@@ -644,7 +611,6 @@ def process_camera_stream(camera_id, stream_url):
             except Exception as e:
                 logger.error(f"❌ Error encoding processed frame for camera {camera_id}: {e}")
 
-            # Enqueue a JSON-serializable payload (no raw ndarrays)
             payload = {
                 'camera_id': camera_id,
                 'camera_name': camera.name if camera else f'Camera {camera_id}',
@@ -658,15 +624,12 @@ def process_camera_stream(camera_id, stream_url):
                 'anomalies': all_anomalies
             }
             detection_queue.put(payload)
-            logger.debug(f"Enqueued detection payload for camera {camera_id} (len frame: {len(frame_base64) if frame_base64 else 0})")
 
-            # Update latest frame cache for quick debugging / UI fetch
             try:
                 last_frames[camera_id] = frame_base64
             except Exception:
                 pass
 
-            # Periodic logging to indicate stream is alive
             if frame_count % 30 == 0:
                 logger.info(f"📸 Camera {camera_id} alive — frames={frame_count} fps={round(fps,1)} encoded={'yes' if frame_base64 else 'no'} detections={len(all_detections)} anomalies={len(all_anomalies)}")
             
@@ -688,7 +651,6 @@ def home():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Get stats for dashboard
     total_incidents = Incident.query.count()
     today_incidents = Incident.query.filter(
         Incident.created_at >= datetime.now().date()
@@ -797,7 +759,6 @@ def api_guard_respond(incident_id):
         logger.error(f"Error updating incident status: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# API Routes
 @app.route('/api/available_cameras')
 @login_required
 def get_available_cameras():
@@ -805,10 +766,8 @@ def get_available_cameras():
     available_cameras = []
     seen_ids = set()
 
-    # Backends to try (prefer DirectShow on Windows, then MSMF)
     backends = [cv2.CAP_DSHOW, cv2.CAP_MSMF, cv2.CAP_V4L, cv2.CAP_ANY]
 
-    # Try indices 0-8 for common webcam indices
     for i in range(9):
         try:
             opened = False
@@ -859,7 +818,6 @@ def handle_cameras():
         db.session.add(camera)
         db.session.commit()
         
-        # Create monitors for new camera with specified settings
         models = data.get('models', ['normal'])
         confidence_threshold = data.get('confidence_threshold', 0.75)
         
@@ -889,7 +847,6 @@ def handle_cameras():
     
     return jsonify(cameras_data)
 
-
 @app.route('/api/cameras/<int:camera_id>', methods=['PUT'])
 @login_required
 def update_camera(camera_id):
@@ -899,12 +856,10 @@ def update_camera(camera_id):
         if not camera:
             return jsonify({'success': False, 'message': 'Camera not found'}), 404
 
-        # Update allowed fields
         for field in ('name', 'location', 'source_type', 'stream_url'):
             if field in data:
                 setattr(camera, field, data[field])
 
-        # device_id may be numeric or null
         if 'device_id' in data:
             camera.device_id = str(data['device_id']) if data['device_id'] is not None else None
 
@@ -921,12 +876,10 @@ def update_camera(camera_id):
         logger.error(f"Error updating camera {camera_id}: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-
 @app.route('/api/sanitize_cameras', methods=['POST'])
 @login_required
 def sanitize_cameras():
-    """Clean up cameras with non-numeric device_id by setting device_id to NULL.
-       Useful when cameras were created with invalid values from the UI."""
+    """Clean up cameras with non-numeric device_id by setting device_id to NULL."""
     try:
         cameras = Camera.query.all()
         cleaned = []
@@ -943,7 +896,6 @@ def sanitize_cameras():
         logger.error(f"Error sanitizing cameras: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-
 @app.route('/api/cameras/<int:camera_id>', methods=['DELETE'])
 @login_required
 def delete_camera(camera_id):
@@ -952,7 +904,6 @@ def delete_camera(camera_id):
         if not camera:
             return jsonify({'success': False, 'message': 'Camera not found'}), 404
 
-        # Delete related monitors and incidents optionally
         CameraMonitor.query.filter_by(camera_id=camera_id).delete()
         Incident.query.filter_by(camera_id=camera_id).delete()
         db.session.delete(camera)
@@ -1006,22 +957,18 @@ def start_monitoring():
     if not camera_id:
         return jsonify({'success': False, 'message': 'Camera ID required'})
     
-    # use session.get to avoid SQLAlchemy legacy Query.get warnings
     camera = db.session.get(Camera, camera_id)
     if not camera:
         return jsonify({'success': False, 'message': 'Camera not found'})
-    # Validate camera configuration before starting
     if camera.source_type in ['ip'] and not camera.stream_url:
         return jsonify({'success': False, 'message': 'Camera is configured as IP/stream but has no stream URL.'})
     if camera.source_type in ['webcam', 'external']:
-        # try numeric device_id or allow empty (will use fallback), but reject long browser deviceId strings
         if camera.device_id is not None and str(camera.device_id).strip() != '':
             try:
                 int(str(camera.device_id))
             except ValueError:
                 return jsonify({'success': False, 'message': 'Camera device_id must be a numeric server device index.'})
     
-    # Start monitoring this camera
     current_streams[camera_id] = True
     stream_thread = threading.Thread(
         target=process_camera_stream, 
@@ -1051,16 +998,13 @@ def stop_monitoring():
         return jsonify({'success': True, 'message': 'Monitoring stopped'})
     
     return jsonify({'success': False, 'message': 'Camera not being monitored'})
-
 @app.route('/api/detection_data')
 @login_required
 def get_detection_data():
     try:
-        # Try to get data with a small timeout to reduce latency
         try:
-            data = detection_queue.get(timeout=0.1)  # 100ms timeout
+            data = detection_queue.get(timeout=0.1)
         except queue.Empty:
-            # If no new data, try to return cached frame
             for cam_id, b64 in last_frames.items():
                 if b64:
                     return jsonify({
@@ -1072,15 +1016,12 @@ def get_detection_data():
                     })
             return jsonify({'error': 'No frames available'})
 
-        # Process frame data if present
         try:
             if 'frame_data' in data and data['frame_data'] is not None:
                 frame = data['frame_data']
-                # Handle PIL Image
                 if hasattr(frame, 'convert') and callable(getattr(frame, 'convert')):
                     frame = np.array(frame.convert('RGB'))
 
-                # Ensure numpy array
                 if not isinstance(frame, np.ndarray):
                     try:
                         frame = np.array(frame)
@@ -1098,14 +1039,12 @@ def get_detection_data():
             logger.error(f"❌ Error encoding frame for JSON response: {e}")
             frame_base64 = ''
 
-        # Remove raw frame data (ndarray) to avoid JSON serialization errors
         if 'frame_data' in data:
             try:
                 del data['frame_data']
             except Exception:
                 data['frame_data'] = None
 
-        # Helper to convert numpy scalars/arrays to native Python types
         def make_json_safe(obj):
             try:
                 if isinstance(obj, np.generic):
@@ -1120,12 +1059,10 @@ def get_detection_data():
                 pass
             return obj
 
-        # Sanitize remaining payload
         safe_payload = {k: make_json_safe(v) for k, v in data.items()}
         safe_payload['frame_base64'] = frame_base64
         return jsonify(safe_payload)
     except queue.Empty:
-        # If no item in queue, try to return the latest cached frame for any camera
         try:
             for cam_id, b64 in last_frames.items():
                 if b64:
@@ -1153,7 +1090,6 @@ def get_detection_data():
             'anomalies': []
         })
 
-
 @app.route('/api/latest_frame/<int:camera_id>')
 @login_required
 def get_latest_frame(camera_id):
@@ -1166,7 +1102,6 @@ def get_latest_frame(camera_id):
     except Exception as e:
         logger.error(f"Error returning latest frame for camera {camera_id}: {e}")
         return jsonify({'camera_id': camera_id, 'frame_base64': ''}), 500
-
 
 @app.route('/api/snapshot/<int:camera_id>')
 @login_required
@@ -1187,30 +1122,25 @@ def get_snapshot(camera_id):
         logger.error(f"Error returning snapshot for camera {camera_id}: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
-
 @app.route('/get_result_file/<path:filename>')
 @login_required
 def get_result_file(filename):
     """Serve result files from runs/detect or uploaded static files in a safe manner."""
-    # Prevent path traversal
     requested_path = os.path.abspath(filename)
 
-    runs_root = os.path.abspath('runs/detect')
+    runs_root = os.path.abspath(os.path.join(BASE_DIR, 'runs', 'detect'))
     uploads_root = os.path.abspath(app.config['UPLOAD_FOLDER'])
 
-    # If filename is already a full path, try to serve it; otherwise join with possible roots
     candidate_paths = [requested_path]
-    # also consider if client sent relative path (like 'runs/detect/...')
-    candidate_paths.append(os.path.abspath(os.path.join('.', filename)))
+    candidate_paths.append(os.path.abspath(os.path.join(BASE_DIR, filename)))
 
-    for root in [runs_root, uploads_root, os.path.abspath('.')]:
+    for root in [runs_root, uploads_root, BASE_DIR]:
         candidate_paths.append(os.path.abspath(os.path.join(root, filename)))
 
     for path in candidate_paths:
         if os.path.exists(path):
-            # ensure path is under allowed roots
             abs_path = os.path.abspath(path)
-            if abs_path.startswith(runs_root) or abs_path.startswith(uploads_root) or abs_path.startswith(os.path.abspath('.')):
+            if abs_path.startswith(runs_root) or abs_path.startswith(uploads_root) or abs_path.startswith(BASE_DIR):
                 try:
                     return send_file(abs_path)
                 except Exception as e:
@@ -1242,30 +1172,24 @@ def upload_test():
     file.save(filepath)
 
     def save_evidence_image(img, incident_type):
-        """Save a single evidence image (BGR numpy array) to runs/detect and return (rel_path, b64)
-        """
         try:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            out_dir = os.path.join('runs', 'detect', f'incident_{timestamp}')
+            out_dir = os.path.join(BASE_DIR, 'runs', 'detect', f'incident_{timestamp}')
             os.makedirs(out_dir, exist_ok=True)
             fname = f'evidence_{incident_type}_{timestamp}.jpg'
             out_path = os.path.join(out_dir, fname)
-            # Ensure uint8 BGR for saving
             if img is None:
                 return None, None
             cv2.imwrite(out_path, img)
             with open(out_path, 'rb') as f:
                 b64 = base64.b64encode(f.read()).decode('utf-8')
-            rel = os.path.relpath(out_path).replace('\\', '/')
+            rel = os.path.relpath(out_path, BASE_DIR).replace('\\', '/')
             return rel, b64
         except Exception as e:
             logger.error(f"Error saving evidence image: {e}")
             return None, None
 
     def scan_video_for_anomaly(video_path, model_keys, max_frames=600, stride=5):
-        """Quickly scan a video for the first frame that triggers one of our anomaly detectors.
-        Returns (model_key, anomaly_dict, frame_bgr, frame_index) or (None, None, None, None)
-        """
         try:
             cap = cv2.VideoCapture(video_path)
             if not cap.isOpened():
@@ -1280,13 +1204,11 @@ def upload_test():
 
                 if frame_idx % stride == 0:
                     scanned += 1
-                    # For each requested model, run detection on the frame
                     for mk in model_keys:
                         model = models.get(mk)
                         if not model:
                             continue
                         try:
-                            # ultralytics can accept numpy frame
                             results = model(frame, verbose=False)
                         except Exception:
                             results = None
@@ -1307,7 +1229,6 @@ def upload_test():
                                         except Exception:
                                             continue
 
-                        # Check for anomalies
                         max_conf = max([d['confidence'] for d in detection_data] if detection_data else [0])
                         
                         if mk == 'fight':
@@ -1317,7 +1238,6 @@ def upload_test():
                                 return mk, anomaly, frame, frame_idx
                         
                         if mk == 'sleep':
-                            # For sleep, check we have person detections with good confidence
                             person_dets = [d for d in detection_data if d['class'] == 'person']
                             if person_dets:
                                 person_conf = max(d['confidence'] for d in person_dets)
@@ -1327,7 +1247,6 @@ def upload_test():
                                     cap.release()
                                     return mk, anomaly, frame, frame_idx
                         
-                        # phone detection: look for class names commonly used
                         phone_classes = {'cell phone', 'phone', 'mobile', 'cellphone'}
                         for d in detection_data:
                             if d.get('class', '').lower() in phone_classes and d.get('confidence', 0) > 0.5:
@@ -1353,30 +1272,23 @@ def upload_test():
             except Exception:
                 requested_models = []
 
-        # By default, scan using all loaded models so we don't miss sleep/fight/phone
-        # when the client doesn't explicitly request specific models.
         if not requested_models:
             requested_models = list(models.keys())
 
-        # Build available models as intersection of requested and loaded models
         available_models = [m for m in requested_models if m in models]
         if not available_models:
-            # Fallback to all loaded models if intersection is empty
             available_models = list(models.keys())
 
-        # If video: do a quick scan for anomalies and save the first incident frame
         if filename.lower().endswith(('.mp4', '.avi', '.mov')):
             mk, anomaly, aframe, frame_index = scan_video_for_anomaly(filepath, available_models)
             result = process_video_file(filepath, filename, models.get(available_models[0]))
             result['models_used'] = available_models
 
             if anomaly and aframe is not None:
-                # Save evidence and get both the filesystem path and base64 encoding
                 rel_path, b64 = save_evidence_image(aframe, anomaly.get('type', mk or 'video'))
                 if rel_path:
                     logger.info(f"Saved incident evidence to: {rel_path}")
 
-                # Create incident record and store both base64 and file path
                 incident = Incident(
                     title=f"Anomaly Detected: {anomaly.get('type')}",
                     description=anomaly.get('message'),
@@ -1385,12 +1297,11 @@ def upload_test():
                     location='Uploaded File',
                     camera_id=None,
                     confidence_score=anomaly.get('confidence', 0),
-                    frame_evidence=b64 or '',  # base64 for inline display
-                    video_evidence_path=rel_path or None,  # path for loading from disk
+                    frame_evidence=b64 or '',
+                    video_evidence_path=rel_path or None,
                     status='reported'
                 )
 
-                # Save to database within app context
                 try:
                     with app.app_context():
                         db.session.add(incident)
@@ -1398,18 +1309,14 @@ def upload_test():
                         logger.info(f"Created incident: type={anomaly.get('type')}, confidence={anomaly.get('confidence')}")
                 except Exception as e:
                     logger.error(f"Failed to save incident to database: {e}")
-                    # But continue - we still want to return the detection results
                 
                 result['incident_created'] = True
                 result['evidence_file'] = rel_path
-                
-                # Log the incident details for debugging
                 logger.info(f"Incident details: conf={anomaly.get('confidence')}, path={rel_path}, has_b64={'yes' if b64 else 'no'}")
             else:
                 result['incident_created'] = False
 
         else:
-            # Image processing: run the selected models and detect anomalies
             detection_data = []
             student_count = 0
             orig_img = cv2.imread(filepath)
@@ -1454,7 +1361,6 @@ def upload_test():
                                 except Exception:
                                     continue
 
-                # Run anomaly detectors per-model
                 detected_objects = [d['class'] for d in detection_data]
                 max_conf = max([d['confidence'] for d in detection_data]) if detection_data else 0
                 if model_key == 'fight':
@@ -1464,14 +1370,12 @@ def upload_test():
                 else:
                     anomaly = None
 
-                # phone detection
                 phone_classes = {'cell phone', 'phone', 'mobile', 'cellphone'}
                 phone_found = next((d for d in detection_data if d['class'].lower() in phone_classes and d['confidence'] > 0.5), None)
                 if phone_found:
                     anomaly = {'type': 'phone_detected', 'confidence': phone_found['confidence'], 'message': 'Phone detected', 'severity': 'medium'}
 
                 if anomaly and not incident_saved:
-                    # Save evidence image (full frame) and create incident
                     rel_path, b64 = save_evidence_image(draw_img if draw_img is not None else orig_img, anomaly.get('type'))
                     incident = Incident(
                         title=f"Anomaly Detected: {anomaly.get('type')}",
@@ -1491,9 +1395,8 @@ def upload_test():
                     incident_saved = True
                     incident_info = {'evidence_file': rel_path, 'anomaly': anomaly}
 
-            # Save aggregated result image
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            output_dir = f'runs/detect/test_{timestamp}'
+            output_dir = os.path.join(BASE_DIR, 'runs', 'detect', f'test_{timestamp}')
             os.makedirs(output_dir, exist_ok=True)
             result_image_path = os.path.join(output_dir, 'output_image.jpg')
             if draw_img is not None:
@@ -1521,7 +1424,7 @@ def upload_test():
         logger.info(f"✅ Detection completed in {processing_time:.2f}s")
 
         try:
-            rel_path = os.path.relpath(result.get('result_file', ''))
+            rel_path = os.path.relpath(result.get('result_file', ''), BASE_DIR)
             result['result_file'] = rel_path.replace('\\', '/')
         except Exception:
             pass
@@ -1539,7 +1442,7 @@ def upload_test():
 
 def process_video_file(video_path, filename, model):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_dir = f'runs/detect/test_{timestamp}'
+    output_dir = os.path.join(BASE_DIR, 'runs', 'detect', f'test_{timestamp}')
     os.makedirs(output_dir, exist_ok=True)
     
     results = model.predict(video_path, save=True, project=output_dir, name='', exist_ok=True)
@@ -1588,7 +1491,7 @@ def process_image_file(filepath, filename, model):
     results = model(filepath, verbose=False)
     
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_dir = f'runs/detect/test_{timestamp}'
+    output_dir = os.path.join(BASE_DIR, 'runs', 'detect', f'test_{timestamp}')
     os.makedirs(output_dir, exist_ok=True)
     
     result_image_path = os.path.join(output_dir, 'output_image.jpg')
@@ -1630,7 +1533,6 @@ def process_image_file(filepath, filename, model):
 @login_required
 def get_recent_incidents():
     try:
-        # Get incidents from the last 24 hours
         since = datetime.utcnow() - timedelta(days=1)
         incidents = Incident.query.filter(
             Incident.created_at >= since
@@ -1646,14 +1548,12 @@ def get_recent_incidents():
             'status': incident.status,
             'created_at': incident.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'confidence_score': incident.confidence_score,
-            # include evidence file path (if saved on disk) and whether frame_evidence exists
             'evidence_file': incident.video_evidence_path,
             'has_frame_evidence': bool(incident.frame_evidence)
         } for incident in incidents])
     except Exception as e:
         logger.error(f"Error fetching recent incidents: {e}")
         return jsonify([])
-
 
 @app.route('/api/incidents', methods=['GET'])
 @login_required
@@ -1683,9 +1583,8 @@ def get_incidents():
 def clear_incidents():
     """Clear all incidents or incidents of a specific type."""
     try:
-        # Set default empty dict if no JSON was sent
         data = request.get_json(silent=True) or {}
-        incident_type = data.get('type')  # Optional: clear only specific type
+        incident_type = data.get('type')
         
         query = Incident.query
         if incident_type:

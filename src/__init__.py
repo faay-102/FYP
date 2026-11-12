@@ -1,0 +1,2 @@
+# CampusGuard AI source package
+

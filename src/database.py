@@ -19,6 +19,9 @@ class User(UserMixin, db.Model):
     
     incidents = db.relationship('Incident', backref='reported_by', lazy=True)
     
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    
     def set_password(self, password):
         self.password_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
     
@@ -43,6 +46,9 @@ class Camera(db.Model):
     detections = db.relationship('AnomalyDetection', backref='camera', lazy=True)
     incidents = db.relationship('Incident', backref='camera', lazy=True)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
 class Incident(db.Model):
     __tablename__ = 'incidents'
     
@@ -61,6 +67,9 @@ class Incident(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     resolved_at = db.Column(db.DateTime)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
 class AnomalyDetection(db.Model):
     __tablename__ = 'anomaly_detections'
     
@@ -72,6 +81,9 @@ class AnomalyDetection(db.Model):
     students_detected = db.Column(db.Integer, default=0)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
 class SystemLog(db.Model):
     __tablename__ = 'system_logs'
     
@@ -82,6 +94,9 @@ class SystemLog(db.Model):
     ip_address = db.Column(db.String(45))
     user_agent = db.Column(db.String(500))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 class CameraMonitor(db.Model):
     __tablename__ = 'camera_monitors'
@@ -97,3 +112,7 @@ class CameraMonitor(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     camera = db.relationship('Camera', backref='monitors')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
