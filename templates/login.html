@@ -2,7 +2,7 @@
 
 {% set hide_navbar = True %}
 
-{% block title %}Sign In - CampusGuard AI{% endblock %}
+{% block title %}Log In - CampusGuard AI{% endblock %}
 
 {% block content %}
 <div class="payoneer-auth-wrapper">
@@ -78,7 +78,14 @@
 
             <!-- Main Form Content -->
             <div class="auth-form-body">
-                <h1 class="auth-heading">Sign In</h1>
+                {% if current_user.is_authenticated %}
+                <div class="active-session-banner">
+                    <span>Logged in as <strong>{{ current_user.username }}</strong></span>
+                    <a href="{{ url_for('dashboard') }}" class="btn-proceed-dash">Dashboard &rarr;</a>
+                </div>
+                {% endif %}
+
+                <h1 class="auth-heading">Log In</h1>
                 <p class="auth-subheading">Enter your campus credentials to access the security operations center.</p>
 
                 <form method="POST" class="payoneer-form" id="loginForm">
@@ -107,7 +114,7 @@
                     <!-- Gradient Pill Submit Button -->
                     <button type="submit" class="gradient-pill-cta">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-                        <span>Sign In</span>
+                        <span>Log In</span>
                     </button>
                 </form>
             </div>

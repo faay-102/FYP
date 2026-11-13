@@ -2,54 +2,56 @@
 
 {% set hide_navbar = True %}
 
-{% block title %}Create Account - CampusGuard AI{% endblock %}
+{% block title %}Sign Up - CampusGuard AI{% endblock %}
 
 {% block content %}
 <div class="payoneer-auth-wrapper">
     <div class="payoneer-auth-card">
-        <!-- Left Showcase Panel (Dark Brand Showcase) -->
+        <!-- Left Showcase Panel (Identical to Sign In for Unified Design) -->
         <div class="auth-showcase-pane">
-            <p class="showcase-tagline">Proactive campus safety — real-time computer vision threat detection for higher education.</p>
+            <p class="showcase-tagline">Campus surveillance made intelligent — automated YOLOv11 security for smart institutions.</p>
             
-            <h1 class="showcase-title">Join our<br>campus guard</h1>
+            <h1 class="showcase-title">Protect<br>your campus</h1>
             
             <!-- High-Tech Floating Device Mockup -->
             <div class="device-mockup-frame">
                 <div class="device-notch"></div>
                 <div class="device-header">
                     <span class="device-time">10:42 AM</span>
-                    <span class="device-pill">● ACCESS TIER</span>
+                    <span class="device-pill">● LIVE CCTV</span>
                 </div>
                 
                 <div class="device-metric">
-                    <span class="metric-number">RBAC</span>
-                    <span class="metric-label">Role-Based Security Tiers</span>
+                    <span class="metric-number">99.4%</span>
+                    <span class="metric-label">Detection Accuracy</span>
                 </div>
                 
+                <!-- Telemetry Activity Scan Bars -->
                 <div class="telemetry-bars-row">
-                    <div class="t-bar highlight" style="height: 55%;"></div>
-                    <div class="t-bar highlight" style="height: 80%;"></div>
-                    <div class="t-bar" style="height: 40%;"></div>
-                    <div class="t-bar highlight" style="height: 95%;"></div>
+                    <div class="t-bar highlight" style="height: 65%;"></div>
+                    <div class="t-bar" style="height: 45%;"></div>
+                    <div class="t-bar highlight" style="height: 85%;"></div>
                     <div class="t-bar highlight" style="height: 70%;"></div>
                     <div class="t-bar" style="height: 50%;"></div>
-                    <div class="t-bar highlight" style="height: 85%;"></div>
-                    <div class="t-bar highlight" style="height: 60%;"></div>
+                    <div class="t-bar highlight" style="height: 90%;"></div>
+                    <div class="t-bar" style="height: 40%;"></div>
+                    <div class="t-bar highlight" style="height: 75%;"></div>
                 </div>
                 
+                <!-- Stream Info Cards Inside Mockup -->
                 <div class="device-card-preview">
                     <div class="d-card-item">
-                        <span class="d-icon">🛡️</span>
+                        <span class="d-icon">📹</span>
                         <div>
-                            <strong>Patrol & Alerts</strong>
-                            <small>Instant Dispatch Notifications</small>
+                            <strong>Active Feeds</strong>
+                            <small>4 Campus Zones Connected</small>
                         </div>
                     </div>
                     <div class="d-card-item">
-                        <span class="d-icon">📊</span>
+                        <span class="d-icon">⚡</span>
                         <div>
-                            <strong>Incident Auditing</strong>
-                            <small>Encrypted Video Evidence Logging</small>
+                            <strong>YOLOv11 Inference</strong>
+                            <small>GPU Acceleration @ 30 FPS</small>
                         </div>
                     </div>
                 </div>
@@ -70,14 +72,21 @@
                 </div>
                 <a href="{{ url_for('auth.login') }}" class="auth-switch-link">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-                    <span>Sign In</span>
+                    <span>Log In</span>
                 </a>
             </div>
 
             <!-- Main Form Content -->
             <div class="auth-form-body">
-                <h1 class="auth-heading">Create Account</h1>
-                <p class="auth-subheading">Register your campus profile to join the security operations network.</p>
+                {% if current_user.is_authenticated %}
+                <div class="active-session-banner">
+                    <span>Logged in as <strong>{{ current_user.username }}</strong></span>
+                    <a href="{{ url_for('dashboard') }}" class="btn-proceed-dash">Dashboard &rarr;</a>
+                </div>
+                {% endif %}
+
+                <h1 class="auth-heading">Sign Up</h1>
+                <p class="auth-subheading">Create your campus credentials to access the security operations center.</p>
 
                 <form method="POST" class="payoneer-form" id="registerForm">
                     <div class="pill-input-container">
@@ -119,7 +128,7 @@
             <div class="auth-bottom-bar">
                 <span class="auth-copyright">© 2026 CampusGuard AI Inc.</span>
                 <div class="auth-bottom-links">
-                    <a href="{{ url_for('auth.login') }}">Already registered? Sign In</a>
+                    <a href="{{ url_for('auth.login') }}">Already registered? Log In</a>
                     <span class="dot-separator">•</span>
                     <a href="mailto:security@campusguard.edu">Help Desk</a>
                 </div>

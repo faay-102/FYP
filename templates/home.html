@@ -2,7 +2,7 @@
 
 {% block content %}
 <script>
-    // Automatically redirect to dashboard if authenticated or login if not
-    window.location.href = "{{ url_for('dashboard') if current_user.is_authenticated else url_for('auth.login') }}";
+    // Root URL redirects directly to the login authentication screen
+    window.location.href = "{{ url_for('auth.login') }}";
 </script>
 {% endblock %}
