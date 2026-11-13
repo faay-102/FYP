@@ -27,4 +27,6 @@ runs/*
 .idea/
 .DS_Store
 Thumbs.db
+git_push.bat
+git_push.ps1
 
