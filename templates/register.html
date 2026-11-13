@@ -52,7 +52,7 @@ body {
     flex: 1.1;
     background: radial-gradient(circle at 85% 15%, #15312c 0%, #0c1c1a 45%, #071211 100%);
     border-radius: 20px;
-    padding: 42px 38px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -60,9 +60,30 @@ body {
     overflow: hidden;
     box-sizing: border-box;
     z-index: 1;
+    min-height: 640px;
 }
 
-.cyber-left-panel::before {
+.cyber-showcase-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 20px;
+}
+
+.cyber-panel-fallback {
+    width: 100%;
+    height: 100%;
+    padding: 38px 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    position: relative;
+    background: radial-gradient(circle at 85% 15%, #133a33 0%, #0a1f1b 50%, #051412 100%);
+}
+
+.cyber-panel-fallback::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -71,7 +92,7 @@ body {
         radial-gradient(rgba(0, 191, 174, 0.08) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px;
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
 }
 
 .cyber-top-row {
@@ -79,6 +100,8 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 .cyber-brand {
@@ -88,9 +111,9 @@ body {
 }
 
 .cyber-brand-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 9px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
     background: linear-gradient(135deg, #00bfae 0%, #008779 100%);
     display: flex;
     align-items: center;
@@ -101,153 +124,127 @@ body {
 
 .cyber-brand-name {
     color: #ffffff;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 750;
     letter-spacing: -0.015em;
 }
 
-.cyber-live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: #00e5ce;
-    background: rgba(0, 191, 174, 0.12);
-    border: 1px solid rgba(0, 191, 174, 0.28);
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    letter-spacing: 0.04em;
-    font-family: 'JetBrains Mono', monospace;
-}
-
-.cyber-pulse-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #00e5ce;
-    box-shadow: 0 0 8px #00e5ce;
-    animation: pulseRadar 1.8s infinite;
-}
-
-@keyframes pulseRadar {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.35; transform: scale(1.3); }
-}
-
-.cyber-hero-content {
-    margin: 2rem 0;
-}
-
-.cyber-hero-title {
-    font-size: 2.55rem;
-    font-weight: 800;
-    line-height: 1.14;
-    letter-spacing: -0.025em;
-    color: #ffffff;
-    margin-bottom: 1.85rem;
-}
-
-.cyber-accent {
-    color: #00bfae;
-    text-shadow: 0 0 30px rgba(0, 191, 174, 0.3);
-}
-
-.cyber-feature-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.95rem;
-}
-
-.cyber-feature-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 14px;
-    padding: 13px 15px;
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.cyber-feature-card:hover {
-    background: rgba(0, 191, 174, 0.06);
-    border-color: rgba(0, 191, 174, 0.28);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.5);
-}
-
-.cyber-feature-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: rgba(0, 191, 174, 0.12);
-    border: 1px solid rgba(0, 191, 174, 0.25);
+.cyber-cctv-cam {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #00bfae;
-    flex-shrink: 0;
-    margin-top: 1px;
+    color: #cbd5e1;
+    position: relative;
 }
 
-.cyber-card-body {
-    flex: 1;
+.cyber-hero-content {
+    margin: 1.25rem 0 0.85rem;
+    position: relative;
+    z-index: 1;
 }
 
-.cyber-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3px;
-    gap: 8px;
-}
-
-.cyber-card-header strong {
+.cyber-hero-title {
+    font-size: 2.35rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
     color: #ffffff;
-    font-size: 0.92rem;
-    font-weight: 700;
+    margin: 0 0 0.75rem 0;
 }
 
-.cyber-metric-tag {
-    font-size: 0.65rem;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
+.cyber-accent {
     color: #00e5ce;
-    background: rgba(0, 191, 174, 0.15);
-    padding: 0.12rem 0.45rem;
-    border-radius: 4px;
-    border: 1px solid rgba(0, 191, 174, 0.25);
-    white-space: nowrap;
+    text-shadow: 0 0 25px rgba(0, 229, 206, 0.4);
 }
 
-.cyber-card-body p {
-    color: #7e9e98;
-    font-size: 0.81rem;
-    line-height: 1.45;
-    margin: 0;
+.cyber-hero-subtitle {
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 0.75rem 0;
+    letter-spacing: 0.01em;
 }
 
-.cyber-left-footer {
+.cyber-accent-line {
+    width: 44px;
+    height: 3.5px;
+    background: #00e5ce;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(0, 229, 206, 0.7);
+}
+
+.cyber-campus-art {
+    margin: 0.5rem 0;
+    width: 100%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    color: #51716b;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.cyber-campus-svg {
+    width: 100%;
+    max-height: 175px;
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+}
+
+.cyber-bottom-features {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    gap: 8px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.cyber-bottom-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    position: relative;
+}
+
+.cyber-bottom-col:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15%;
+    bottom: 15%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.cyber-col-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00e5ce;
+}
+
+.cyber-col-title {
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: block;
+    line-height: 1.2;
+}
+
+.cyber-col-sub {
+    color: #94b8b1;
     font-size: 0.74rem;
     font-weight: 500;
-    letter-spacing: 0.01em;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    padding-top: 1rem;
-    margin-top: 0.5rem;
+    display: block;
+    line-height: 1.2;
 }
-
-.cyber-footer-pill {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: #00bfae;
-    background: rgba(0, 191, 174, 0.08);
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
 }
 
 /* Right Clean Form Panel */
@@ -442,78 +439,146 @@ body {
     <div class="cyber-auth-card">
         <!-- Left Showcase Panel (Dark Brand Showcase) -->
         <div class="cyber-left-panel">
-            <!-- Top Row: Brand -->
-            <div class="cyber-top-row">
-                <div class="cyber-brand">
-                    <div class="cyber-brand-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <img src="{{ url_for('static', filename='img/auth_showcase.jpg') }}" 
+                 alt="CampusGuard AI - Autonomous Campus Surveillance Framework" 
+                 class="cyber-showcase-img"
+                 onerror="this.style.display='none'; document.getElementById('cyber-fallback-panel').style.display='flex';">
+            
+            <!-- Fallback Artwork in case image is loading or not yet cached -->
+            <div id="cyber-fallback-panel" class="cyber-panel-fallback" style="display: none;">
+                <!-- Top Row: Logo & CCTV Camera -->
+                <div class="cyber-top-row">
+                    <div class="cyber-brand">
+                        <div class="cyber-brand-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                <polyline points="9 12 11 14 15 10"></polyline>
+                            </svg>
+                        </div>
+                        <span class="cyber-brand-name">CampusGuard <span style="color: #00e5ce;">AI</span></span>
+                    </div>
+                    <div class="cyber-cctv-cam" title="Active Campus Surveillance">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16.7 8a3 3 0 0 0-2.7-2h-8a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h8a3 3 0 0 0 2.7-2l4.3 2.5V5.5L16.7 8z"></path>
+                            <circle cx="9" cy="9" r="2"></circle>
                         </svg>
                     </div>
-                    <span class="cyber-brand-name">CampusGuard AI</span>
                 </div>
-            </div>
 
-            <!-- Hero Headline & Feature Value Props -->
-            <div class="cyber-hero-content">
-                <h1 class="cyber-hero-title">
-                    Autonomous<br>
-                    <span class="cyber-accent">Campus Surveillance</span><br>
-                    Framework
-                </h1>
+                <!-- Hero Typography -->
+                <div class="cyber-hero-content">
+                    <h1 class="cyber-hero-title">
+                        Autonomous<br>
+                        <span class="cyber-accent">Campus Surveillance</span><br>
+                        Framework
+                    </h1>
+                    <p class="cyber-hero-subtitle">Intelligent Security. Safer Campuses.</p>
+                    <div class="cyber-accent-line"></div>
+                </div>
 
-                <div class="cyber-feature-list">
-                    <!-- Feature Card 1 -->
-                    <div class="cyber-feature-card">
-                        <div class="cyber-feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <circle cx="12" cy="12" r="4"></circle>
-                                <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
-                                <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
-                                <line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line>
-                                <line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line>
+                <!-- University Building Architectural Art -->
+                <div class="cyber-campus-art">
+                    <svg viewBox="0 0 400 190" fill="none" xmlns="http://www.w3.org/2000/svg" class="cyber-campus-svg">
+                        <!-- Soft clouds & stars -->
+                        <path d="M50 45 Q70 35 90 45 Q110 35 125 48" stroke="rgba(255,255,255,0.12)" stroke-width="1.2" stroke-linecap="round"/>
+                        <path d="M280 40 Q300 30 320 40 Q340 32 355 42" stroke="rgba(255,255,255,0.12)" stroke-width="1.2" stroke-linecap="round"/>
+                        
+                        <!-- Main Tower -->
+                        <rect x="165" y="45" width="70" height="125" fill="#0d2b25" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.5"/>
+                        <polygon points="160,45 200,12 240,45" fill="#091f1a" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.7"/>
+                        <!-- Clock -->
+                        <circle cx="200" cy="68" r="16" fill="#051714" stroke="#00e5ce" stroke-width="1.8"/>
+                        <line x1="200" y1="68" x2="200" y2="58" stroke="#00e5ce" stroke-width="1.8" stroke-linecap="round"/>
+                        <line x1="200" y1="68" x2="209" y2="68" stroke="#00e5ce" stroke-width="1.8" stroke-linecap="round"/>
+                        <circle cx="200" cy="68" r="2" fill="#00e5ce"/>
+                        <!-- Triple Tower Arches -->
+                        <path d="M178 115 V102 C178 98 184 98 184 102 V115" stroke="#00e5ce" stroke-width="1.3" stroke-opacity="0.8"/>
+                        <path d="M197 115 V100 C197 96 203 96 203 100 V115" stroke="#00e5ce" stroke-width="1.3" stroke-opacity="0.8"/>
+                        <path d="M216 115 V102 C216 98 222 98 222 102 V115" stroke="#00e5ce" stroke-width="1.3" stroke-opacity="0.8"/>
+
+                        <!-- Left Wing -->
+                        <rect x="70" y="80" width="95" height="90" fill="#0b241f" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.4"/>
+                        <!-- Left Wing Windows -->
+                        <g fill="#00e5ce" fill-opacity="0.28" stroke="#00e5ce" stroke-width="0.8" stroke-opacity="0.5">
+                            <rect x="85" y="94" width="14" height="18" rx="1.5"/>
+                            <rect x="110" y="94" width="14" height="18" rx="1.5"/>
+                            <rect x="135" y="94" width="14" height="18" rx="1.5"/>
+                            <rect x="85" y="124" width="14" height="18" rx="1.5"/>
+                            <rect x="110" y="124" width="14" height="18" rx="1.5"/>
+                            <rect x="135" y="124" width="14" height="18" rx="1.5"/>
+                        </g>
+
+                        <!-- Right Wing -->
+                        <rect x="235" y="80" width="95" height="90" fill="#0b241f" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.4"/>
+                        <!-- Right Wing Windows -->
+                        <g fill="#00e5ce" fill-opacity="0.28" stroke="#00e5ce" stroke-width="0.8" stroke-opacity="0.5">
+                            <rect x="250" y="94" width="14" height="18" rx="1.5"/>
+                            <rect x="275" y="94" width="14" height="18" rx="1.5"/>
+                            <rect x="300" y="94" width="14" height="18" rx="1.5"/>
+                            <rect x="250" y="124" width="14" height="18" rx="1.5"/>
+                            <rect x="275" y="124" width="14" height="18" rx="1.5"/>
+                            <rect x="300" y="124" width="14" height="18" rx="1.5"/>
+                        </g>
+
+                        <!-- Main Entrance Arch -->
+                        <path d="M188 170 V144 C188 136 212 136 212 144 V170 Z" fill="#051714" stroke="#00e5ce" stroke-width="1.5"/>
+                        <line x1="200" y1="140" x2="200" y2="170" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.7"/>
+
+                        <!-- Campus Trees -->
+                        <circle cx="48" cy="135" r="22" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
+                        <circle cx="35" cy="148" r="18" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
+                        <line x1="48" y1="157" x2="48" y2="174" stroke="#00e5ce" stroke-width="2" stroke-opacity="0.6"/>
+
+                        <circle cx="352" cy="135" r="22" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
+                        <circle cx="365" cy="148" r="18" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
+                        <line x1="352" y1="157" x2="352" y2="174" stroke="#00e5ce" stroke-width="2" stroke-opacity="0.6"/>
+
+                        <!-- Horizon Ground Line -->
+                        <path d="M5 174 Q 200 166 395 174" stroke="#00e5ce" stroke-width="2.5" stroke-opacity="0.7"/>
+                    </svg>
+                </div>
+
+                <!-- 3-Column Bottom Bar -->
+                <div class="cyber-bottom-features">
+                    <div class="cyber-bottom-col">
+                        <div class="cyber-col-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                                <line x1="9" y1="1" x2="9" y2="4"></line>
+                                <line x1="15" y1="1" x2="15" y2="4"></line>
+                                <line x1="9" y1="20" x2="9" y2="23"></line>
+                                <line x1="15" y1="20" x2="15" y2="23"></line>
+                                <line x1="20" y1="9" x2="23" y2="9"></line>
+                                <line x1="20" y1="14" x2="23" y2="14"></line>
+                                <line x1="1" y1="9" x2="4" y2="9"></line>
+                                <line x1="1" y1="14" x2="4" y2="14"></line>
                             </svg>
                         </div>
-                        <div class="cyber-card-body">
-                            <div class="cyber-card-header">
-                                <strong>YOLOv11 Anomaly Vision</strong>
-                            </div>
-                            <p>Real-time neural detection for physical altercations, unauthorized loitering, and collapse.</p>
-                        </div>
+                        <span class="cyber-col-title">AI-Powered</span>
+                        <span class="cyber-col-sub">Detection</span>
                     </div>
 
-                    <!-- Feature Card 2 -->
-                    <div class="cyber-feature-card">
-                        <div class="cyber-feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    <div class="cyber-bottom-col">
+                        <div class="cyber-col-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                <polyline points="9 12 11 14 15 10"></polyline>
                             </svg>
                         </div>
-                        <div class="cyber-card-body">
-                            <div class="cyber-card-header">
-                                <strong>Instant Patrol Dispatch</strong>
-                            </div>
-                            <p>Sub-second mobile guard dispatch with cryptographic visual evidence and incident logging.</p>
-                        </div>
+                        <span class="cyber-col-title">Real-Time</span>
+                        <span class="cyber-col-sub">Monitoring</span>
                     </div>
 
-                    <!-- Feature Card 3 -->
-                    <div class="cyber-feature-card">
-                        <div class="cyber-feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                    <div class="cyber-bottom-col">
+                        <div class="cyber-col-icon">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
                         </div>
-                        <div class="cyber-card-body">
-                            <div class="cyber-card-header">
-                                <strong>Multi-Stream CCTV Pipeline</strong>
-                            </div>
-                            <p>High-throughput concurrent RTSP/IP camera ingestion with zero frame lag.</p>
-                        </div>
+                        <span class="cyber-col-title">Instant</span>
+                        <span class="cyber-col-sub">Alerts</span>
                     </div>
                 </div>
             </div>
