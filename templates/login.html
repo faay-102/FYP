@@ -50,9 +50,9 @@ body {
 /* Left Dark Brand Showcase Panel */
 .cyber-left-panel {
     flex: 1.1;
-    background: radial-gradient(circle at 85% 15%, #15312c 0%, #0c1c1a 45%, #071211 100%);
+    background: radial-gradient(circle at 85% 15%, #0f3029 0%, #071c18 50%, #04120f 100%);
     border-radius: 20px;
-    padding: 0;
+    padding: 38px 34px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -63,33 +63,13 @@ body {
     min-height: 640px;
 }
 
-.cyber-showcase-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: 20px;
-}
-
-.cyber-panel-fallback {
-    width: 100%;
-    height: 100%;
-    padding: 38px 34px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-sizing: border-box;
-    position: relative;
-    background: radial-gradient(circle at 85% 15%, #133a33 0%, #0a1f1b 50%, #051412 100%);
-}
-
-.cyber-panel-fallback::before {
+.cyber-left-panel::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image: 
-        radial-gradient(circle at 85% 15%, rgba(0, 191, 174, 0.18) 0%, transparent 45%),
-        radial-gradient(rgba(0, 191, 174, 0.08) 1px, transparent 1px);
+        radial-gradient(circle at 85% 15%, rgba(0, 229, 206, 0.16) 0%, transparent 48%),
+        radial-gradient(rgba(0, 229, 206, 0.06) 1px, transparent 1px);
     background-size: 100% 100%, 24px 24px;
     pointer-events: none;
     z-index: 0;
@@ -98,10 +78,10 @@ body {
 .cyber-top-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .cyber-brand {
@@ -114,12 +94,12 @@ body {
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #00bfae 0%, #008779 100%);
+    background: linear-gradient(135deg, #00e5ce 0%, #008779 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(0, 191, 174, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 229, 206, 0.35);
 }
 
 .cyber-brand-name {
@@ -129,18 +109,40 @@ body {
     letter-spacing: -0.015em;
 }
 
-.cyber-cctv-cam {
+/* Mounted Security CCTV Camera with Light Beam */
+.cyber-cctv-wrap {
+    position: relative;
+    width: 100px;
+    height: 70px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    color: #cbd5e1;
-    position: relative;
+    justify-content: flex-end;
+}
+
+.cyber-cctv-beam {
+    position: absolute;
+    top: 24px;
+    right: 48px;
+    width: 260px;
+    height: 220px;
+    background: radial-gradient(ellipse at 100% 0%, rgba(0, 229, 206, 0.22) 0%, rgba(0, 229, 206, 0.06) 45%, transparent 70%);
+    transform: rotate(24deg);
+    transform-origin: top right;
+    pointer-events: none;
+    filter: blur(1.5px);
+    z-index: -1;
+}
+
+.cyber-cctv-svg {
+    width: 82px;
+    height: 64px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
 }
 
 .cyber-hero-content {
-    margin: 1.25rem 0 0.85rem;
+    margin: 1rem 0 0.5rem;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .cyber-hero-title {
@@ -180,13 +182,13 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .cyber-campus-svg {
     width: 100%;
-    max-height: 175px;
-    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+    max-height: 190px;
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
 }
 
 .cyber-bottom-features {
@@ -198,7 +200,7 @@ body {
     gap: 8px;
     width: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .cyber-bottom-col {
@@ -558,149 +560,282 @@ body {
 
 <div class="cyber-auth-wrapper">
     <div class="cyber-auth-card">
-        <!-- Left Showcase Panel (Dark Brand Showcase) -->
+        <!-- Left Showcase Panel (Native CyberGuard Surveillance Artwork) -->
         <div class="cyber-left-panel">
-            <img src="{{ url_for('static', filename='img/auth_showcase.jpg') }}" 
-                 alt="CampusGuard AI - Autonomous Campus Surveillance Framework" 
-                 class="cyber-showcase-img"
-                 onerror="this.style.display='none'; document.getElementById('cyber-fallback-panel').style.display='flex';">
-            
-            <!-- Fallback Artwork in case image is loading or not yet cached -->
-            <div id="cyber-fallback-panel" class="cyber-panel-fallback" style="display: none;">
-                <!-- Top Row: Logo & CCTV Camera -->
-                <div class="cyber-top-row">
-                    <div class="cyber-brand">
-                        <div class="cyber-brand-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                <polyline points="9 12 11 14 15 10"></polyline>
-                            </svg>
-                        </div>
-                        <span class="cyber-brand-name">CampusGuard <span style="color: #00e5ce;">AI</span></span>
-                    </div>
-                    <div class="cyber-cctv-cam" title="Active Campus Surveillance">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16.7 8a3 3 0 0 0-2.7-2h-8a3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h8a3 3 0 0 0 2.7-2l4.3 2.5V5.5L16.7 8z"></path>
-                            <circle cx="9" cy="9" r="2"></circle>
+            <!-- Top Row: Brand & CCTV Camera -->
+            <div class="cyber-top-row">
+                <div class="cyber-brand">
+                    <div class="cyber-brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <polyline points="9 12 11 14 15 10"></polyline>
                         </svg>
                     </div>
+                    <span class="cyber-brand-name">CampusGuard <span style="color: #00e5ce;">AI</span></span>
                 </div>
 
-                <!-- Hero Typography -->
-                <div class="cyber-hero-content">
-                    <h1 class="cyber-hero-title">
-                        Autonomous<br>
-                        <span class="cyber-accent">Campus Surveillance</span><br>
-                        Framework
-                    </h1>
-                    <p class="cyber-hero-subtitle">Intelligent Security. Safer Campuses.</p>
-                    <div class="cyber-accent-line"></div>
-                </div>
-
-                <!-- University Building Architectural Art -->
-                <div class="cyber-campus-art">
-                    <svg viewBox="0 0 400 190" fill="none" xmlns="http://www.w3.org/2000/svg" class="cyber-campus-svg">
-                        <!-- Soft clouds & stars -->
-                        <path d="M50 45 Q70 35 90 45 Q110 35 125 48" stroke="rgba(255,255,255,0.12)" stroke-width="1.2" stroke-linecap="round"/>
-                        <path d="M280 40 Q300 30 320 40 Q340 32 355 42" stroke="rgba(255,255,255,0.12)" stroke-width="1.2" stroke-linecap="round"/>
-                        
-                        <!-- Main Tower -->
-                        <rect x="165" y="45" width="70" height="125" fill="#0d2b25" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.5"/>
-                        <polygon points="160,45 200,12 240,45" fill="#091f1a" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.7"/>
-                        <!-- Clock -->
-                        <circle cx="200" cy="68" r="16" fill="#051714" stroke="#00e5ce" stroke-width="1.8"/>
-                        <line x1="200" y1="68" x2="200" y2="58" stroke="#00e5ce" stroke-width="1.8" stroke-linecap="round"/>
-                        <line x1="200" y1="68" x2="209" y2="68" stroke="#00e5ce" stroke-width="1.8" stroke-linecap="round"/>
-                        <circle cx="200" cy="68" r="2" fill="#00e5ce"/>
-                        <!-- Triple Tower Arches -->
-                        <path d="M178 115 V102 C178 98 184 98 184 102 V115" stroke="#00e5ce" stroke-width="1.3" stroke-opacity="0.8"/>
-                        <path d="M197 115 V100 C197 96 203 96 203 100 V115" stroke="#00e5ce" stroke-width="1.3" stroke-opacity="0.8"/>
-                        <path d="M216 115 V102 C216 98 222 98 222 102 V115" stroke="#00e5ce" stroke-width="1.3" stroke-opacity="0.8"/>
-
-                        <!-- Left Wing -->
-                        <rect x="70" y="80" width="95" height="90" fill="#0b241f" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.4"/>
-                        <!-- Left Wing Windows -->
-                        <g fill="#00e5ce" fill-opacity="0.28" stroke="#00e5ce" stroke-width="0.8" stroke-opacity="0.5">
-                            <rect x="85" y="94" width="14" height="18" rx="1.5"/>
-                            <rect x="110" y="94" width="14" height="18" rx="1.5"/>
-                            <rect x="135" y="94" width="14" height="18" rx="1.5"/>
-                            <rect x="85" y="124" width="14" height="18" rx="1.5"/>
-                            <rect x="110" y="124" width="14" height="18" rx="1.5"/>
-                            <rect x="135" y="124" width="14" height="18" rx="1.5"/>
+                <!-- Mounted Security CCTV Camera with Glowing Light Beam -->
+                <div class="cyber-cctv-wrap" title="Active Security Camera Surveillance">
+                    <div class="cyber-cctv-beam"></div>
+                    <svg class="cyber-cctv-svg" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Wall mount plate -->
+                        <rect x="84" y="32" width="12" height="30" rx="3" fill="#334155" stroke="#475569" stroke-width="1.5"/>
+                        <circle cx="90" cy="38" r="2" fill="#64748b"/>
+                        <circle cx="90" cy="56" r="2" fill="#64748b"/>
+                        <!-- Articulated mounting arm -->
+                        <path d="M84 47 L68 47 L62 36" stroke="#94a3b8" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="62" cy="36" r="4" fill="#475569" stroke="#cbd5e1" stroke-width="1.2"/>
+                        <!-- Camera Body rotated downwards ~22 degrees -->
+                        <g transform="rotate(-22 45 35)">
+                            <!-- Sun shield hood -->
+                            <path d="M6 18 L74 18 L68 23 L2 23 Z" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="1"/>
+                            <!-- Camera barrel cylinder -->
+                            <rect x="12" y="22" width="54" height="24" rx="4" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.2"/>
+                            <rect x="18" y="22" width="4" height="24" fill="#334155"/>
+                            <rect x="58" y="22" width="3" height="24" fill="#334155"/>
+                            <!-- Front lens housing -->
+                            <ellipse cx="12" cy="34" rx="6" ry="12" fill="#0f172a" stroke="#cbd5e1" stroke-width="1.2"/>
+                            <!-- Optical lens glass with cyan reflection -->
+                            <ellipse cx="12" cy="34" rx="4" ry="9" fill="#021c18" stroke="#00e5ce" stroke-width="1.2"/>
+                            <circle cx="12" cy="34" r="2.5" fill="#000000"/>
+                            <circle cx="11" cy="32" r="1.2" fill="#00e5ce"/>
+                            <!-- Live status LED dot -->
+                            <circle cx="24" cy="26" r="1.8" fill="#00e5ce"/>
                         </g>
-
-                        <!-- Right Wing -->
-                        <rect x="235" y="80" width="95" height="90" fill="#0b241f" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.4"/>
-                        <!-- Right Wing Windows -->
-                        <g fill="#00e5ce" fill-opacity="0.28" stroke="#00e5ce" stroke-width="0.8" stroke-opacity="0.5">
-                            <rect x="250" y="94" width="14" height="18" rx="1.5"/>
-                            <rect x="275" y="94" width="14" height="18" rx="1.5"/>
-                            <rect x="300" y="94" width="14" height="18" rx="1.5"/>
-                            <rect x="250" y="124" width="14" height="18" rx="1.5"/>
-                            <rect x="275" y="124" width="14" height="18" rx="1.5"/>
-                            <rect x="300" y="124" width="14" height="18" rx="1.5"/>
-                        </g>
-
-                        <!-- Main Entrance Arch -->
-                        <path d="M188 170 V144 C188 136 212 136 212 144 V170 Z" fill="#051714" stroke="#00e5ce" stroke-width="1.5"/>
-                        <line x1="200" y1="140" x2="200" y2="170" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.7"/>
-
-                        <!-- Campus Trees -->
-                        <circle cx="48" cy="135" r="22" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
-                        <circle cx="35" cy="148" r="18" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
-                        <line x1="48" y1="157" x2="48" y2="174" stroke="#00e5ce" stroke-width="2" stroke-opacity="0.6"/>
-
-                        <circle cx="352" cy="135" r="22" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
-                        <circle cx="365" cy="148" r="18" fill="#07201b" stroke="#00e5ce" stroke-width="1" stroke-opacity="0.4"/>
-                        <line x1="352" y1="157" x2="352" y2="174" stroke="#00e5ce" stroke-width="2" stroke-opacity="0.6"/>
-
-                        <!-- Horizon Ground Line -->
-                        <path d="M5 174 Q 200 166 395 174" stroke="#00e5ce" stroke-width="2.5" stroke-opacity="0.7"/>
                     </svg>
                 </div>
+            </div>
 
-                <!-- 3-Column Bottom Bar -->
-                <div class="cyber-bottom-features">
-                    <div class="cyber-bottom-col">
-                        <div class="cyber-col-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                                <rect x="9" y="9" width="6" height="6"></rect>
-                                <line x1="9" y1="1" x2="9" y2="4"></line>
-                                <line x1="15" y1="1" x2="15" y2="4"></line>
-                                <line x1="9" y1="20" x2="9" y2="23"></line>
-                                <line x1="15" y1="20" x2="15" y2="23"></line>
-                                <line x1="20" y1="9" x2="23" y2="9"></line>
-                                <line x1="20" y1="14" x2="23" y2="14"></line>
-                                <line x1="1" y1="9" x2="4" y2="9"></line>
-                                <line x1="1" y1="14" x2="4" y2="14"></line>
-                            </svg>
-                        </div>
-                        <span class="cyber-col-title">AI-Powered</span>
-                        <span class="cyber-col-sub">Detection</span>
-                    </div>
+            <!-- Hero Typography -->
+            <div class="cyber-hero-content">
+                <h1 class="cyber-hero-title">
+                    Autonomous<br>
+                    <span class="cyber-accent">Campus Surveillance</span><br>
+                    Framework
+                </h1>
+                <p class="cyber-hero-subtitle">Intelligent Security. Safer Campuses.</p>
+                <div class="cyber-accent-line"></div>
+            </div>
 
-                    <div class="cyber-bottom-col">
-                        <div class="cyber-col-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                <polyline points="9 12 11 14 15 10"></polyline>
-                            </svg>
-                        </div>
-                        <span class="cyber-col-title">Real-Time</span>
-                        <span class="cyber-col-sub">Monitoring</span>
-                    </div>
+            <!-- Architectural University Campus Building Artwork (Crisp White Architecture) -->
+            <div class="cyber-campus-art">
+                <svg viewBox="0 0 500 240" fill="none" xmlns="http://www.w3.org/2000/svg" class="cyber-campus-svg">
+                    <!-- Sky & Soft Clouds -->
+                    <path d="M70 50 Q90 38 115 50 Q135 40 150 52" stroke="rgba(255,255,255,0.22)" stroke-width="1.2" stroke-linecap="round"/>
+                    <path d="M340 45 Q365 34 390 45 Q415 36 430 48" stroke="rgba(255,255,255,0.22)" stroke-width="1.2" stroke-linecap="round"/>
+                    <circle cx="80" cy="30" r="1" fill="#ffffff" opacity="0.6"/>
+                    <circle cx="420" cy="25" r="1" fill="#ffffff" opacity="0.6"/>
 
-                    <div class="cyber-bottom-col">
-                        <div class="cyber-col-icon">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                            </svg>
-                        </div>
-                        <span class="cyber-col-title">Instant</span>
-                        <span class="cyber-col-sub">Alerts</span>
+                    <!-- Left Flank University Trees -->
+                    <g opacity="0.9">
+                        <circle cx="45" cy="165" r="28" fill="#08231c" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.45"/>
+                        <circle cx="30" cy="182" r="22" fill="#08231c" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.45"/>
+                        <circle cx="68" cy="178" r="20" fill="#08231c" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.45"/>
+                        <!-- Tree Trunk -->
+                        <line x1="45" y1="190" x2="45" y2="218" stroke="#00e5ce" stroke-width="2.5" stroke-opacity="0.7"/>
+                        <line x1="45" y1="200" x2="35" y2="192" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.6"/>
+                        <line x1="45" y1="204" x2="55" y2="196" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.6"/>
+                    </g>
+
+                    <!-- Right Flank University Trees -->
+                    <g opacity="0.9">
+                        <circle cx="455" cy="165" r="28" fill="#08231c" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.45"/>
+                        <circle cx="470" cy="182" r="22" fill="#08231c" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.45"/>
+                        <circle cx="432" cy="178" r="20" fill="#08231c" stroke="#00e5ce" stroke-width="1.2" stroke-opacity="0.45"/>
+                        <!-- Tree Trunk -->
+                        <line x1="455" y1="190" x2="455" y2="218" stroke="#00e5ce" stroke-width="2.5" stroke-opacity="0.7"/>
+                        <line x1="455" y1="200" x2="465" y2="192" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.6"/>
+                        <line x1="455" y1="204" x2="445" y2="196" stroke="#00e5ce" stroke-width="1.5" stroke-opacity="0.6"/>
+                    </g>
+
+                    <!-- Main White Building Structure -->
+                    <!-- Left Hall Wing (Crisp White Architecture) -->
+                    <rect x="85" y="100" width="120" height="110" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <!-- Cornice / Roof Trim -->
+                    <rect x="80" y="96" width="128" height="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+                    
+                    <!-- Right Hall Wing (Crisp White Architecture) -->
+                    <rect x="295" y="100" width="120" height="110" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <!-- Cornice / Roof Trim -->
+                    <rect x="292" y="96" width="128" height="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+
+                    <!-- Central White Clock Tower Structure -->
+                    <rect x="202" y="55" width="96" height="155" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <!-- Triangular Pediment / Tower Peak (White with Slate trim) -->
+                    <polygon points="198,55 250,16 302,55" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+                    <polygon points="204,53 250,20 296,53" fill="#ffffff"/>
+                    <line x1="198" y1="55" x2="302" y2="55" stroke="#cbd5e1" stroke-width="2"/>
+                    
+                    <!-- Tower Trim Molding Bands -->
+                    <rect x="202" y="110" width="96" height="4" fill="#e2e8f0"/>
+                    <rect x="202" y="162" width="96" height="4" fill="#e2e8f0"/>
+
+                    <!-- Clock Face (Classic dark emerald-slate dial with white border & hands) -->
+                    <circle cx="250" cy="84" r="21" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="250" cy="84" r="18" fill="#08231c" stroke="#00e5ce" stroke-width="1.5"/>
+                    <circle cx="250" cy="84" r="15" fill="none" stroke="#ffffff" stroke-width="0.8" stroke-opacity="0.5" stroke-dasharray="1.5 2.5"/>
+                    <!-- Clock Hands showing ~10:10 -->
+                    <line x1="250" y1="84" x2="242" y2="72" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="250" y1="84" x2="262" y2="76" stroke="#00e5ce" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="250" cy="84" r="2.4" fill="#ffffff"/>
+
+                    <!-- Tower Arched Windows (3 Middle Bays on White Tower) -->
+                    <g stroke="#94a3b8" stroke-width="1">
+                        <path d="M220 148 V126 C220 120 228 120 228 126 V148 Z" fill="#08231c"/>
+                        <line x1="224" y1="121" x2="224" y2="148" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="220" y1="135" x2="228" y2="135" stroke="#ffffff" stroke-width="0.8"/>
+                        
+                        <path d="M245 148 V123 C245 116 255 116 255 123 V148 Z" fill="#08231c"/>
+                        <line x1="250" y1="118" x2="250" y2="148" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="245" y1="134" x2="255" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        
+                        <path d="M272 148 V126 C272 120 280 120 280 126 V148 Z" fill="#08231c"/>
+                        <line x1="276" y1="121" x2="276" y2="148" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="272" y1="135" x2="280" y2="135" stroke="#ffffff" stroke-width="0.8"/>
+                    </g>
+
+                    <!-- Left Wing Windows (Dark panes inside White Wall with crisp crossbars) -->
+                    <g fill="#08231c" stroke="#94a3b8" stroke-width="0.9">
+                        <!-- Top Floor -->
+                        <rect x="100" y="112" width="18" height="22" rx="1.5"/>
+                        <line x1="109" y1="112" x2="109" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="100" y1="123" x2="118" y2="123" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="135" y="112" width="18" height="22" rx="1.5"/>
+                        <line x1="144" y1="112" x2="144" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="135" y1="123" x2="153" y2="123" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="170" y="112" width="18" height="22" rx="1.5"/>
+                        <line x1="179" y1="112" x2="179" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="170" y1="123" x2="188" y2="123" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <!-- Middle Floor -->
+                        <rect x="100" y="146" width="18" height="22" rx="1.5"/>
+                        <line x1="109" y1="146" x2="109" y2="168" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="100" y1="157" x2="118" y2="157" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="135" y="146" width="18" height="22" rx="1.5"/>
+                        <line x1="144" y1="146" x2="144" y2="168" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="135" y1="157" x2="153" y2="157" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="170" y="146" width="18" height="22" rx="1.5"/>
+                        <line x1="179" y1="146" x2="179" y2="168" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="170" y1="157" x2="188" y2="157" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <!-- Ground Floor -->
+                        <rect x="100" y="180" width="18" height="22" rx="1.5"/>
+                        <line x1="109" y1="180" x2="109" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="100" y1="191" x2="118" y2="191" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="135" y="180" width="18" height="22" rx="1.5"/>
+                        <line x1="144" y1="180" x2="144" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="135" y1="191" x2="153" y2="191" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="170" y="180" width="18" height="22" rx="1.5"/>
+                        <line x1="179" y1="180" x2="179" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="170" y1="191" x2="188" y2="191" stroke="#ffffff" stroke-width="0.8"/>
+                    </g>
+
+                    <!-- Right Wing Windows (Dark panes inside White Wall with crisp crossbars) -->
+                    <g fill="#08231c" stroke="#94a3b8" stroke-width="0.9">
+                        <!-- Top Floor -->
+                        <rect x="312" y="112" width="18" height="22" rx="1.5"/>
+                        <line x1="321" y1="112" x2="321" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="312" y1="123" x2="330" y2="123" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="347" y="112" width="18" height="22" rx="1.5"/>
+                        <line x1="356" y1="112" x2="356" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="347" y1="123" x2="365" y2="123" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="382" y="112" width="18" height="22" rx="1.5"/>
+                        <line x1="391" y1="112" x2="391" y2="134" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="382" y1="123" x2="400" y2="123" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <!-- Middle Floor -->
+                        <rect x="312" y="146" width="18" height="22" rx="1.5"/>
+                        <line x1="321" y1="146" x2="321" y2="168" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="312" y1="157" x2="330" y2="157" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="347" y="146" width="18" height="22" rx="1.5"/>
+                        <line x1="356" y1="146" x2="356" y2="168" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="347" y1="157" x2="365" y2="157" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="382" y="146" width="18" height="22" rx="1.5"/>
+                        <line x1="391" y1="146" x2="391" y2="168" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="382" y1="157" x2="400" y2="157" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <!-- Ground Floor -->
+                        <rect x="312" y="180" width="18" height="22" rx="1.5"/>
+                        <line x1="321" y1="180" x2="321" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="312" y1="191" x2="330" y2="191" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="347" y="180" width="18" height="22" rx="1.5"/>
+                        <line x1="356" y1="180" x2="356" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="347" y1="191" x2="365" y2="191" stroke="#ffffff" stroke-width="0.8"/>
+
+                        <rect x="382" y="180" width="18" height="22" rx="1.5"/>
+                        <line x1="391" y1="180" x2="391" y2="202" stroke="#ffffff" stroke-width="0.8"/>
+                        <line x1="382" y1="191" x2="400" y2="191" stroke="#ffffff" stroke-width="0.8"/>
+                    </g>
+
+                    <!-- Main University Entrance Arch & Portico (White Portico with Columns) -->
+                    <rect x="224" y="168" width="52" height="42" rx="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.8"/>
+                    <!-- Columns -->
+                    <rect x="226" y="172" width="5" height="38" fill="#e2e8f0"/>
+                    <rect x="269" y="172" width="5" height="38" fill="#e2e8f0"/>
+                    <!-- Entrance Arched Portal -->
+                    <path d="M235 210 V184 C235 174 265 174 265 184 V210 Z" fill="#08231c" stroke="#94a3b8" stroke-width="1.5"/>
+                    <line x1="250" y1="176" x2="250" y2="210" stroke="#ffffff" stroke-width="1.2"/>
+                    <!-- Grand Entrance Steps (White & Slate) -->
+                    <line x1="218" y1="210" x2="282" y2="210" stroke="#cbd5e1" stroke-width="2.5"/>
+                    <line x1="212" y1="214" x2="288" y2="214" stroke="#94a3b8" stroke-width="2.5"/>
+
+                    <!-- Horizon Ground Curve with Glow -->
+                    <path d="M0 216 Q 250 206 500 216" stroke="#00e5ce" stroke-width="2.6" stroke-opacity="0.85"/>
+                </svg>
+            </div>
+
+            <!-- Bottom 3-Column Features -->
+            <div class="cyber-bottom-features">
+                <div class="cyber-bottom-col">
+                    <div class="cyber-col-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="14" x2="23" y2="14"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="14" x2="4" y2="14"></line>
+                        </svg>
                     </div>
+                    <span class="cyber-col-title">AI-Powered</span>
+                    <span class="cyber-col-sub">Detection</span>
+                </div>
+
+                <div class="cyber-bottom-col">
+                    <div class="cyber-col-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <polyline points="9 12 11 14 15 10"></polyline>
+                        </svg>
+                    </div>
+                    <span class="cyber-col-title">Real-Time</span>
+                    <span class="cyber-col-sub">Monitoring</span>
+                </div>
+
+                <div class="cyber-bottom-col">
+                    <div class="cyber-col-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00e5ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </div>
+                    <span class="cyber-col-title">Instant</span>
+                    <span class="cyber-col-sub">Alerts</span>
                 </div>
             </div>
         </div>
