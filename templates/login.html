@@ -2,131 +2,736 @@
 
 {% set hide_navbar = True %}
 
-{% block title %}Log In - CampusGuard AI{% endblock %}
+{% block title %}Sign In - CampusGuard AI{% endblock %}
 
 {% block content %}
-<div class="payoneer-auth-wrapper">
-    <div class="payoneer-auth-card">
+<style>
+body {
+    background: #d6e2e6 !important;
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.auth-fullscreen {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cyber-auth-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+    background: #d6e2e6;
+    box-sizing: border-box;
+}
+
+.cyber-auth-card {
+    display: flex;
+    width: 100%;
+    max-width: 1140px;
+    min-height: 680px;
+    border-radius: 26px;
+    background: #ffffff;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 30px 80px -20px rgba(10, 30, 35, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Left Dark Brand Showcase Panel */
+.cyber-left-panel {
+    flex: 1.1;
+    background: radial-gradient(circle at 85% 15%, #15312c 0%, #0c1c1a 45%, #071211 100%);
+    border-radius: 20px;
+    padding: 42px 38px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    z-index: 1;
+}
+
+.cyber-left-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 85% 15%, rgba(0, 191, 174, 0.18) 0%, transparent 45%),
+        radial-gradient(rgba(0, 191, 174, 0.08) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.cyber-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.cyber-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cyber-brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #00bfae 0%, #008779 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 191, 174, 0.35);
+}
+
+.cyber-brand-name {
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+}
+
+.cyber-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #00e5ce;
+    background: rgba(0, 191, 174, 0.12);
+    border: 1px solid rgba(0, 191, 174, 0.28);
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.cyber-pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00e5ce;
+    box-shadow: 0 0 8px #00e5ce;
+    animation: pulseRadar 1.8s infinite;
+}
+
+@keyframes pulseRadar {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(1.3); }
+}
+
+.cyber-hero-content {
+    margin: 2rem 0;
+}
+
+.cyber-hero-title {
+    font-size: 2.55rem;
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -0.025em;
+    color: #ffffff;
+    margin-bottom: 1.85rem;
+}
+
+.cyber-accent {
+    color: #00bfae;
+    text-shadow: 0 0 30px rgba(0, 191, 174, 0.3);
+}
+
+.cyber-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+}
+
+.cyber-feature-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 13px 15px;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cyber-feature-card:hover {
+    background: rgba(0, 191, 174, 0.06);
+    border-color: rgba(0, 191, 174, 0.28);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.5);
+}
+
+.cyber-feature-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(0, 191, 174, 0.12);
+    border: 1px solid rgba(0, 191, 174, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00bfae;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.cyber-card-body {
+    flex: 1;
+}
+
+.cyber-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    gap: 8px;
+}
+
+.cyber-card-header strong {
+    color: #ffffff;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.cyber-metric-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: #00e5ce;
+    background: rgba(0, 191, 174, 0.15);
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 191, 174, 0.25);
+    white-space: nowrap;
+}
+
+.cyber-card-body p {
+    color: #7e9e98;
+    font-size: 0.81rem;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.cyber-left-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #51716b;
+    font-size: 0.74rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+.cyber-footer-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: #00bfae;
+    background: rgba(0, 191, 174, 0.08);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Right Clean Form Panel */
+.cyber-right-panel {
+    flex: 1.1;
+    background: #ffffff;
+    padding: 44px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.cyber-form-container {
+    width: 100%;
+    max-width: 375px;
+}
+
+.cyber-heading {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.025em;
+    margin-bottom: 0.35rem;
+}
+
+.cyber-subheading {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 1.85rem;
+}
+
+.cyber-form-group {
+    margin-bottom: 1.15rem;
+}
+
+.cyber-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.45rem;
+}
+
+.cyber-label {
+    font-size: 0.825rem;
+    font-weight: 600;
+    color: #334155;
+    display: block;
+    margin-bottom: 0.45rem;
+}
+
+.cyber-link-subtle {
+    color: #008779;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.cyber-link-subtle:hover {
+    color: #005f56;
+    text-decoration: underline;
+}
+
+.cyber-input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.cyber-input {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.74rem 0.85rem 0.74rem 2.6rem;
+    font-size: 0.875rem;
+    color: #0f172a;
+    box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cyber-input:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #009688;
+    box-shadow: 0 0 0 3.5px rgba(0, 150, 136, 0.14);
+}
+
+.cyber-input-wrap:focus-within .input-leading-icon {
+    color: #009688;
+}
+
+.cyber-input::placeholder {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.input-leading-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.input-trailing-action {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.input-trailing-action:hover {
+    color: #0f172a;
+}
+
+.cyber-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 1.35rem;
+}
+
+.cyber-checkbox {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    accent-color: #005f56;
+    cursor: pointer;
+}
+
+.cyber-checkbox-label {
+    font-size: 0.825rem;
+    color: #64748b;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cyber-btn-primary {
+    width: 100%;
+    padding: 0.78rem 1rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #007d70 0%, #005f56 100%);
+    color: #ffffff;
+    font-size: 0.93rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 18px rgba(0, 95, 86, 0.32);
+    display: block;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.cyber-btn-primary:hover {
+    background: linear-gradient(135deg, #009183 0%, #006e63 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 8px 24px rgba(0, 95, 86, 0.45);
+    transform: translateY(-1px);
+}
+
+.cyber-btn-primary:active {
+    transform: scale(0.99);
+}
+
+.cyber-sso-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.35rem 0 1.25rem;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.cyber-sso-divider::before,
+.cyber-sso-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #eef2f6;
+}
+
+.cyber-sso-divider span {
+    padding: 0 0.85rem;
+}
+
+.cyber-sso-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.35rem;
+}
+
+.cyber-btn-sso {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.64rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.825rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.cyber-btn-sso:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.cyber-account-prompt {
+    text-align: center;
+    font-size: 0.825rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.cyber-text-link {
+    color: #007367;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 0.25rem;
+    transition: color 0.2s;
+}
+
+.cyber-text-link:hover {
+    color: #005f56;
+    text-decoration: underline;
+}
+
+.cyber-demo-bar {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.cyber-demo-caption {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.cyber-demo-pill {
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cyber-demo-pill:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+@media (max-width: 960px) {
+    .cyber-auth-card {
+        flex-direction: column;
+        border-radius: 20px;
+        min-height: auto;
+        padding: 12px;
+    }
+
+    .cyber-left-panel {
+        padding: 2.25rem 1.75rem;
+    }
+
+    .cyber-hero-title {
+        font-size: 2.15rem;
+    }
+
+    .cyber-right-panel {
+        padding: 2.5rem 1.75rem;
+    }
+}
+</style>
+
+<div class="cyber-auth-wrapper">
+    <div class="cyber-auth-card">
         <!-- Left Showcase Panel (Dark Brand Showcase) -->
-        <div class="auth-showcase-pane">
-            <p class="showcase-tagline">Campus surveillance made intelligent — automated YOLOv11 security for smart institutions.</p>
-            
-            <h1 class="showcase-title">Protect<br>your campus</h1>
-            
-            <!-- High-Tech Floating Device Mockup -->
-            <div class="device-mockup-frame">
-                <div class="device-notch"></div>
-                <div class="device-header">
-                    <span class="device-time">10:42 AM</span>
-                    <span class="device-pill">● LIVE CCTV</span>
-                </div>
-                
-                <div class="device-metric">
-                    <span class="metric-number">99.4%</span>
-                    <span class="metric-label">Detection Accuracy</span>
-                </div>
-                
-                <!-- Telemetry Activity Scan Bars (mirroring reference mockup) -->
-                <div class="telemetry-bars-row">
-                    <div class="t-bar highlight" style="height: 65%;"></div>
-                    <div class="t-bar" style="height: 45%;"></div>
-                    <div class="t-bar highlight" style="height: 85%;"></div>
-                    <div class="t-bar highlight" style="height: 70%;"></div>
-                    <div class="t-bar" style="height: 50%;"></div>
-                    <div class="t-bar highlight" style="height: 90%;"></div>
-                    <div class="t-bar" style="height: 40%;"></div>
-                    <div class="t-bar highlight" style="height: 75%;"></div>
-                </div>
-                
-                <!-- Stream Info Cards Inside Mockup -->
-                <div class="device-card-preview">
-                    <div class="d-card-item">
-                        <span class="d-icon">📹</span>
-                        <div>
-                            <strong>Active Feeds</strong>
-                            <small>4 Campus Zones Connected</small>
-                        </div>
+        <div class="cyber-left-panel">
+            <!-- Top Row: Brand -->
+            <div class="cyber-top-row">
+                <div class="cyber-brand">
+                    <div class="cyber-brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
                     </div>
-                    <div class="d-card-item">
-                        <span class="d-icon">⚡</span>
-                        <div>
-                            <strong>YOLOv11 Inference</strong>
-                            <small>GPU Acceleration @ 30 FPS</small>
-                        </div>
-                    </div>
+                    <span class="cyber-brand-name">CampusGuard AI</span>
                 </div>
             </div>
-            
-            <div class="showcase-footer-icon">
-                <span class="brand-glyph">🛡️</span>
+
+            <!-- Hero Headline & Feature Value Props -->
+            <div class="cyber-hero-content">
+                <h1 class="cyber-hero-title">
+                    Autonomous<br>
+                    <span class="cyber-accent">Campus Surveillance</span><br>
+                    Framework
+                </h1>
+
+                <div class="cyber-feature-list">
+                    <!-- Feature Card 1 -->
+                    <div class="cyber-feature-card">
+                        <div class="cyber-feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
+                                <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
+                                <line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line>
+                                <line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line>
+                            </svg>
+                        </div>
+                        <div class="cyber-card-body">
+                            <div class="cyber-card-header">
+                                <strong>YOLOv11 Anomaly Vision</strong>
+                            </div>
+                            <p>Real-time neural detection for physical altercations, unauthorized loitering, and collapse.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature Card 2 -->
+                    <div class="cyber-feature-card">
+                        <div class="cyber-feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                        <div class="cyber-card-body">
+                            <div class="cyber-card-header">
+                                <strong>Instant Patrol Dispatch</strong>
+                            </div>
+                            <p>Sub-second mobile guard dispatch with cryptographic visual evidence and incident logging.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feature Card 3 -->
+                    <div class="cyber-feature-card">
+                        <div class="cyber-feature-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                            </svg>
+                        </div>
+                        <div class="cyber-card-body">
+                            <div class="cyber-card-header">
+                                <strong>Multi-Stream CCTV Pipeline</strong>
+                            </div>
+                            <p>High-throughput concurrent RTSP/IP camera ingestion with zero frame lag.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Right Form Panel (Clean Modern White Form) -->
-        <div class="auth-form-pane">
-            <!-- Top Bar -->
-            <div class="auth-top-bar">
-                <div class="auth-brand-badge">
-                    <span class="logo-ring"></span>
-                    <span class="logo-text">CampusGuard</span>
-                </div>
-                <a href="{{ url_for('auth.register') }}" class="auth-switch-link">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
-                    <span>Sign Up</span>
-                </a>
-            </div>
+        <div class="cyber-right-panel">
+            <div class="cyber-form-container">
+                <h1 class="cyber-heading">Welcome Back</h1>
+                <p class="cyber-subheading">Sign-in to access the security operations center</p>
 
-            <!-- Main Form Content -->
-            <div class="auth-form-body">
-                {% if current_user.is_authenticated %}
-                <div class="active-session-banner">
-                    <span>Logged in as <strong>{{ current_user.username }}</strong></span>
-                    <a href="{{ url_for('dashboard') }}" class="btn-proceed-dash">Dashboard &rarr;</a>
-                </div>
-                {% endif %}
-
-                <h1 class="auth-heading">Log In</h1>
-                <p class="auth-subheading">Enter your campus credentials to access the security operations center.</p>
-
-                <form method="POST" class="payoneer-form" id="loginForm">
-                    <div class="pill-input-container">
-                        <input type="text" id="username" name="username" placeholder="Email or Username" required class="pill-input" autocomplete="username">
+                <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" id="loginForm">
+                    <!-- Email / Username Input -->
+                    <div class="cyber-form-group">
+                        <label class="cyber-label" for="username">Email Address or Username</label>
+                        <div class="cyber-input-wrap">
+                            <span class="input-leading-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </span>
+                            <input type="text" id="username" name="username" placeholder="name@campusguard.edu or admin" required class="cyber-input" autocomplete="username">
+                        </div>
                     </div>
 
-                    <div class="pill-input-container password-container">
-                        <input type="password" id="password" name="password" placeholder="Password" required class="pill-input" autocomplete="current-password">
-                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', this)" aria-label="Toggle password visibility">
-                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <!-- Password Input -->
+                    <div class="cyber-form-group">
+                        <div class="cyber-label-row">
+                            <label class="cyber-label" for="password" style="margin-bottom: 0;">Password</label>
+                            <a href="javascript:void(0)" onclick="forgotPasswordAlert()" class="cyber-link-subtle">Forgot Password?</a>
+                        </div>
+                        <div class="cyber-input-wrap">
+                            <span class="input-leading-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </span>
+                            <input type="password" id="password" name="password" placeholder="••••••••" required class="cyber-input" autocomplete="current-password">
+                            <button type="button" class="input-trailing-action" onclick="togglePasswordVisibility('password', this)" aria-label="Toggle password visibility">
+                                <svg class="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Keep me signed in Checkbox -->
+                    <div class="cyber-checkbox-row">
+                        <input type="checkbox" id="remember" name="remember" class="cyber-checkbox">
+                        <label for="remember" class="cyber-checkbox-label">Keep me signed in</label>
+                    </div>
+
+                    <!-- Sign In Submit Button -->
+                    <button type="submit" class="cyber-btn-primary">Sign In</button>
+
+                    <!-- SSO Divider -->
+                    <div class="cyber-sso-divider">
+                        <span>Or continue with SSO</span>
+                    </div>
+
+                    <!-- Social / SSO Grid -->
+                    <div class="cyber-sso-grid">
+                        <button type="button" class="cyber-btn-sso" onclick="fillCredentials('admin', 'admin123')">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                            </svg>
+                            <span>Google</span>
+                        </button>
+                        <button type="button" class="cyber-btn-sso" onclick="fillCredentials('security', 'security123')">
+                            <svg width="18" height="18" viewBox="0 0 24 24">
+                                <rect x="2" y="2" width="9.5" height="9.5" fill="#F25022"/>
+                                <rect x="12.5" y="2" width="9.5" height="9.5" fill="#7FBA00"/>
+                                <rect x="2" y="12.5" width="9.5" height="9.5" fill="#00A4EF"/>
+                                <rect x="12.5" y="12.5" width="9.5" height="9.5" fill="#FFB900"/>
+                            </svg>
+                            <span>Microsoft</span>
                         </button>
                     </div>
 
-                    <!-- Quick Demo Credentials Pill Bar -->
-                    <div class="demo-quick-bar">
-                        <span class="demo-caption">Auto-fill Demo:</span>
-                        <button type="button" class="demo-pill-btn" onclick="fillCredentials('admin', 'admin123')">
-                            <span>🔑 Admin</span>
-                        </button>
-                        <button type="button" class="demo-pill-btn" onclick="fillCredentials('security', 'security123')">
-                            <span>🛡️ Security</span>
-                        </button>
-                    </div>
+                    <!-- Bottom Switch Link -->
+                    <p class="cyber-account-prompt">
+                        Don't have an account? <a href="{{ url_for('auth.register') }}" class="cyber-text-link">Create Account</a>
+                    </p>
 
-                    <!-- Gradient Pill Submit Button -->
-                    <button type="submit" class="gradient-pill-cta">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-                        <span>Log In</span>
-                    </button>
+                    <!-- Quick Demo Credentials Hint -->
+                    <div class="cyber-demo-bar">
+                        <span class="cyber-demo-caption">Quick Demo:</span>
+                        <button type="button" class="cyber-demo-pill" onclick="fillCredentials('admin', 'admin123')">🔑 Admin</button>
+                        <button type="button" class="cyber-demo-pill" onclick="fillCredentials('security', 'security123')">🛡️ Security</button>
+                    </div>
                 </form>
-            </div>
-
-            <!-- Bottom Bar -->
-            <div class="auth-bottom-bar">
-                <span class="auth-copyright">© 2026 CampusGuard AI Inc.</span>
-                <div class="auth-bottom-links">
-                    <a href="{{ url_for('auth.register') }}">Create Account</a>
-                    <span class="dot-separator">•</span>
-                    <a href="mailto:security@campusguard.edu">Help Desk</a>
-                </div>
             </div>
         </div>
     </div>
@@ -135,21 +740,28 @@
 <script>
 function togglePasswordVisibility(inputId, btn) {
     const input = document.getElementById(inputId);
+    if (!input) return;
     if (input.type === 'password') {
         input.type = 'text';
-        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
     } else {
         input.type = 'password';
-        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
     }
 }
 
 function fillCredentials(user, pass) {
     const userInput = document.getElementById('username');
     const passInput = document.getElementById('password');
-    userInput.value = user;
-    passInput.value = pass;
-    userInput.focus();
+    if (userInput && passInput) {
+        userInput.value = user;
+        passInput.value = pass;
+        userInput.focus();
+    }
+}
+
+function forgotPasswordAlert() {
+    alert("For password reset, please contact your Security Operations Administrator or email security@campusguard.edu");
 }
 </script>
 {% endblock %}
