@@ -1,24 +1,30 @@
 {% extends "base.html" %}
 
-{% block title %}CampusGuard AI - Mobile Guard Patrol Portal{% endblock %}
+{% block title %}CampusGuard AI - Mobile Guard Patrol Command{% endblock %}
 
 {% block content %}
 <div class="guard-container">
     <!-- Header Card -->
     <div class="guard-header-card">
         <div class="guard-officer-info">
-            <div class="officer-badge">🛡️</div>
-            <div>
+            <div class="officer-badge-box">🛡️</div>
+            <div class="guard-title-details">
                 <h2>Guard Patrol Command</h2>
-                <p>Officer: <strong>{{ current_user.username }}</strong> &bull; Status: <span class="badge-patrol-active">ACTIVE ON PATROL</span></p>
+                <div class="guard-officer-subtext">
+                    <span>Officer: <strong>{{ current_user.username }}</strong></span>
+                    <span>&bull;</span>
+                    <span class="badge-patrol-active">ACTIVE ON PATROL</span>
+                </div>
             </div>
         </div>
-        <div class="guard-controls">
-            <button id="sirenToggleBtn" class="btn btn-warning" onclick="toggleSiren()">
-                🔊 Siren: <span id="sirenStatus">ENABLED</span>
+        <div class="guard-controls-group">
+            <button id="sirenToggleBtn" class="btn-siren enabled" onclick="toggleSiren()">
+                <span>🔊 Siren:</span>
+                <strong id="sirenStatus">ENABLED</strong>
             </button>
-            <button id="refreshBtn" class="btn btn-secondary" onclick="fetchGuardAlerts()">
-                🔄 Refresh
+            <button id="refreshBtn" class="btn btn-secondary btn-small" onclick="fetchGuardAlerts()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Refresh</span>
             </button>
         </div>
     </div>
@@ -27,220 +33,49 @@
     <div id="emergencyBanner" class="emergency-alert-banner" style="display: none;">
         <div class="banner-content">
             <span class="pulsing-dot"></span>
-            <strong>CRITICAL DISPATCH:</strong> <span id="bannerText">Threat detected in real time!</span>
+            <strong>CRITICAL DISPATCH:</strong> 
+            <span id="bannerText">Threat detected in real time! Immediate security response required.</span>
         </div>
     </div>
 
     <!-- Alert Counters -->
     <div class="guard-stats-row">
-        <div class="guard-stat-box">
+        <div class="guard-stat-box stat-danger">
             <span class="stat-title">Active Alerts</span>
             <span class="stat-value text-danger" id="activeAlertCount">0</span>
         </div>
-        <div class="guard-stat-box">
+        <div class="guard-stat-box stat-warning">
             <span class="stat-title">Under Investigation</span>
             <span class="stat-value text-warning" id="investigatingCount">0</span>
         </div>
-        <div class="guard-stat-box">
-            <span class="stat-title">Assigned Zone</span>
+        <div class="guard-stat-box stat-info">
+            <span class="stat-title">Assigned Patrol Zone</span>
             <span class="stat-value text-info">{{ current_user.department or 'Campus Wide' }}</span>
         </div>
     </div>
 
-    <!-- Live Incident Feed -->
-    <div class="feed-section">
-        <h3>Live Dispatch Queue</h3>
+    <!-- Live Incident Feed Section -->
+    <div class="guard-feed-section">
+        <div class="feed-header-row">
+            <div>
+                <h3>Live Dispatch Queue</h3>
+                <span class="section-hint">Real-time incident dispatch stream prioritized by YOLOv11 anomaly severity</span>
+            </div>
+            <div class="live-sync-indicator">
+                <span class="live-sync-dot"></span>
+                <span>Live Sync Active (3.5s)</span>
+            </div>
+        </div>
+
         <div id="guardAlertsList" class="guard-alerts-list">
             <div class="no-alerts-card" id="noAlertsMessage">
-                <div class="check-icon">✅</div>
-                <h4>All Zones Secure</h4>
-                <p>No active emergencies or unattended anomalies detected on campus feeds.</p>
+                <div class="check-icon-circle">✓</div>
+                <h4>All Campus Zones Secure</h4>
+                <p>No active emergencies, fights, or unattended anomalies detected across monitored feeds.</p>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-.guard-container {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 10px 15px;
-}
-
-.guard-header-card {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border: 1px solid #334155;
-    border-radius: 12px;
-    padding: 18px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    color: #f8fafc;
-}
-
-.guard-officer-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.officer-badge {
-    font-size: 36px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.badge-patrol-active {
-    background: #10b981;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-.emergency-alert-banner {
-    margin-top: 15px;
-    background: linear-gradient(90deg, #ef4444, #dc2626);
-    color: white;
-    padding: 14px 20px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    animation: pulseGlow 1.5s infinite;
-}
-
-@keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
-    50% { box-shadow: 0 0 25px rgba(239, 68, 68, 0.9); }
-}
-
-.pulsing-dot {
-    width: 12px;
-    height: 12px;
-    background: white;
-    border-radius: 50%;
-    margin-right: 12px;
-    display: inline-block;
-}
-
-.guard-stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.guard-stat-box {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
-    padding: 15px 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-title {
-    color: #94a3b8;
-    font-size: 13px;
-    text-transform: uppercase;
-    font-weight: 600;
-}
-
-.stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    margin-top: 4px;
-    color: #f1f5f9;
-}
-
-.text-danger { color: #f87171 !important; }
-.text-warning { color: #fbbf24 !important; }
-.text-info { color: #38bdf8 !important; }
-
-.guard-alerts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.incident-card {
-    background: #1e293b;
-    border-left: 6px solid #ef4444;
-    border-radius: 10px;
-    padding: 16px 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    color: #f8fafc;
-    transition: transform 0.2s ease;
-}
-
-.incident-card.investigating {
-    border-left-color: #f59e0b;
-}
-
-.incident-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.incident-type-tag {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 12px;
-    text-transform: uppercase;
-}
-
-.tag-critical { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
-.tag-high { background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid #f97316; }
-.tag-medium { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
-
-.incident-preview-img {
-    max-height: 220px;
-    width: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #475569;
-}
-
-.incident-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-}
-
-.no-alerts-card {
-    background: rgba(30, 41, 59, 0.5);
-    border: 2px dashed #475569;
-    border-radius: 12px;
-    padding: 40px;
-    text-align: center;
-    color: #94a3b8;
-}
-
-.check-icon {
-    font-size: 40px;
-    margin-bottom: 10px;
-}
-</style>
 
 <script>
 let sirenMuted = false;
@@ -286,9 +121,18 @@ function playEmergencySiren() {
 function toggleSiren() {
     initAudio();
     sirenMuted = !sirenMuted;
-    const btn = document.getElementById('sirenStatus');
-    btn.textContent = sirenMuted ? 'MUTED' : 'ENABLED';
-    btn.parentElement.className = sirenMuted ? 'btn btn-secondary' : 'btn btn-warning';
+    const btnText = document.getElementById('sirenStatus');
+    const btn = document.getElementById('sirenToggleBtn');
+    
+    if (sirenMuted) {
+        btnText.textContent = 'MUTED';
+        btn.className = 'btn-siren muted';
+        btn.querySelector('span').textContent = '🔇 Siren:';
+    } else {
+        btnText.textContent = 'ENABLED';
+        btn.className = 'btn-siren enabled';
+        btn.querySelector('span').textContent = '🔊 Siren:';
+    }
 }
 
 async function fetchGuardAlerts() {
@@ -313,7 +157,7 @@ async function fetchGuardAlerts() {
         if (reported.length > lastKnownIncidentCount) {
             playEmergencySiren();
             banner.style.display = 'block';
-            document.getElementById('bannerText').textContent = `${reported[0].title} at ${reported[0].location}!`;
+            document.getElementById('bannerText').textContent = `${reported[0].title} at ${reported[0].location}! Immediate response dispatched.`;
         } else if (reported.length === 0) {
             banner.style.display = 'none';
         }
@@ -322,9 +166,9 @@ async function fetchGuardAlerts() {
         if (data.incidents.length === 0) {
             list.innerHTML = `
                 <div class="no-alerts-card">
-                    <div class="check-icon">✅</div>
-                    <h4>All Zones Secure</h4>
-                    <p>No active emergencies or unattended anomalies detected on campus feeds.</p>
+                    <div class="check-icon-circle">✓</div>
+                    <h4>All Campus Zones Secure</h4>
+                    <p>No active emergencies, fights, or unattended anomalies detected across monitored feeds.</p>
                 </div>
             `;
             return;
@@ -333,37 +177,41 @@ async function fetchGuardAlerts() {
         list.innerHTML = data.incidents.map(inc => {
             const isInvestigating = inc.status === 'investigating';
             const frameHtml = inc.frame_b64 ? 
-                `<img class="incident-preview-img" src="data:image/jpeg;base64,${inc.frame_b64}" alt="Evidence Frame">` : 
+                `<div class="incident-frame-wrap"><img class="incident-preview-img" src="data:image/jpeg;base64,${inc.frame_b64}" alt="Evidence Frame"></div>` : 
                 '';
                 
             return `
-                <div class="incident-card ${isInvestigating ? 'investigating' : ''}">
+                <div class="incident-card ${isInvestigating ? 'investigating' : 'unattended'}">
                     <div class="incident-card-top">
-                        <div>
-                            <span class="incident-type-tag tag-${inc.severity.toLowerCase()}">${inc.severity} Severity</span>
-                            <span style="margin-left: 8px; color: #94a3b8; font-size: 13px;">${inc.time}</span>
-                            <h4 style="margin: 6px 0 2px 0;">${inc.title}</h4>
-                            <p style="margin: 0; color: #cbd5e1; font-size: 14px;">📍 <strong>${inc.location}</strong> &bull; Confidence: <strong>${inc.confidence}%</strong></p>
+                        <div class="incident-info-col">
+                            <div class="incident-meta-badges">
+                                <span class="incident-severity-badge severity-${inc.severity.toLowerCase()}">${inc.severity} Severity</span>
+                                <span class="incident-time-pill">${inc.time}</span>
+                            </div>
+                            <h4 class="incident-card-title">${inc.title}</h4>
+                            <p class="incident-location-line">📍 <strong>${inc.location}</strong> &bull; AI Confidence: <strong>${inc.confidence}%</strong></p>
                         </div>
-                        <div>
-                            <span class="badge ${isInvestigating ? 'badge-warning' : 'badge-danger'}">
-                                ${isInvestigating ? '🏃 EN ROUTE' : '🚨 NEW'}
+                        <div class="incident-status-col">
+                            <span class="status-indicator-badge ${isInvestigating ? 'badge-enroute' : 'badge-new'}">
+                                ${isInvestigating ? '🏃 EN ROUTE' : '🚨 NEW DISPATCH'}
                             </span>
                         </div>
                     </div>
                     
                     ${frameHtml}
                     
-                    <p style="margin: 0; font-size: 13px; color: #94a3b8;">${inc.description || 'Automated camera detection trigger'}</p>
+                    <p class="incident-description-text">${inc.description || 'Automated AI camera surveillance detection event.'}</p>
                     
-                    <div class="incident-actions">
+                    <div class="incident-action-row">
                         ${!isInvestigating ? `
                             <button class="btn btn-warning" onclick="updateIncident(${inc.id}, 'investigating')">
-                                🏃 Respond / Dispatched
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                <span>Respond / En Route</span>
                             </button>
                         ` : ''}
                         <button class="btn btn-success" onclick="updateIncident(${inc.id}, 'resolved')">
-                            ✅ Resolve Incident
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Mark as Resolved</span>
                         </button>
                     </div>
                 </div>
@@ -398,4 +246,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 {% endblock %}
-
