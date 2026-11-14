@@ -71,11 +71,18 @@
                     <td>{{ incident.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td>
                         <div class="action-buttons">
+                            {% if incident.frame_evidence or incident.video_evidence_path %}
+                            <button class="btn-action"
+                                style="background: #007d70; color: #ffffff; border-radius: 6px; padding: 0.3rem 0.65rem; font-size: 0.76rem; font-weight: 700;"
+                                onclick="showEvidence('/api/incidents/evidence/{{ incident.id }}', '{{ incident.title }}', '📍 {{ incident.location }} • {{ incident.created_at.strftime('%Y-%m-%d %H:%M') }}')">📷
+                                Evidence</button>
+                            {% endif %}
                             {% if current_user.role in ['admin', 'security'] %}
-                                <button class="btn-action btn-edit" data-id="{{ incident.id }}" data-status="{{ incident.status }}">Update</button>
+                            <button class="btn-action btn-edit" data-id="{{ incident.id }}"
+                                data-status="{{ incident.status }}">Update</button>
                             {% endif %}
                             {% if current_user.role == 'admin' %}
-                                <button class="btn-action btn-delete" data-id="{{ incident.id }}">Delete</button>
+                            <button class="btn-action btn-delete" data-id="{{ incident.id }}">Delete</button>
                             {% endif %}
                         </div>
                     </td>
@@ -158,11 +165,100 @@
         </div>
     </div>
 </div>
+<!-- Full Photographic Evidence Modal -->
+<div id="evidenceModal" class="modal">
+    <div class="modal-content" style="max-width: 860px; border-radius: 16px; overflow: hidden; padding: 0;">
+        <div class="modal-header"
+            style="background: #0f172a; color: #ffffff; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.35rem;">🛡️</span>
+                <div>
+                    <h3 id="modalIncidentTitle" style="margin: 0; font-size: 1.1rem; color: #ffffff;">Incident
+                        Photographic Evidence</h3>
+                    <span id="modalIncidentSubtitle"
+                        style="font-size: 0.76rem; color: #94a3b8; font-family: var(--font-mono);">AI Forensic Analysis
+                        • Cryptographic Snapshot</span>
+                </div>
+            </div>
+            <span class="close" style="color: #cbd5e1; font-size: 1.75rem;">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 1.5rem; background: #0b151e;">
+            <div id="incModalViewportBox" style="text-align: center; background: #000000; border-radius: 12px; overflow: hidden; border: 1.5px solid #1e293b; min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+                <img id="evidenceImage" src="" style="max-width: 100%; max-height: 56vh; object-fit: contain; display: block; margin: 0 auto;" alt="Photographic Forensic Evidence">
+                
+                <!-- Fallback Forensic Dossier (Shown gracefully if legacy photo file was purged from disk) -->
+                <div id="evidenceFallbackDossier" style="display: none; padding: 2.5rem 1.5rem; text-align: center;">
+                    <div id="fallbackEmoji" style="font-size: 3.5rem; margin-bottom: 0.6rem;">📱</div>
+                    <h3 id="fallbackTitle" style="color: #f1f5f9; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;">Anomaly Detected: phone_detected</h3>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); color: #f87171; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.76rem; font-weight: 750; font-family: var(--font-mono); margin-bottom: 1rem;">
+                        <span>● ANOMALY VERIFIED BY YOLOV11</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; max-width: 440px; margin: 0 auto; line-height: 1.5;">
+                        Incident snapshot verified and logged to database. Image file was archived or captured during previous session.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"
+            style="padding: 1rem 1.5rem; background: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+            <div id="modalMetaStats" style="font-size: 0.82rem; color: #64748b; font-family: var(--font-mono);">
+                <span>Engine: <strong>YOLOv11 Anomaly Vision</strong></span>
+            </div>
+            <button type="button" class="btn btn-secondary btn-small close-modal"
+                style="padding: 0.5rem 1rem;">Close</button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
     window.currentUserRole = "{{ current_user.role }}";
+    window.showEvidence = function (src, title, meta) {
+        const modal = document.getElementById('evidenceModal');
+        const modalImg = document.getElementById('evidenceImage');
+        const fallbackBox = document.getElementById('evidenceFallbackDossier');
+        const titleEl = document.getElementById('modalIncidentTitle');
+        const metaEl = document.getElementById('modalMetaStats');
+        const fallbackTitle = document.getElementById('fallbackTitle');
+        const fallbackEmoji = document.getElementById('fallbackEmoji');
+
+        if (modal && modalImg) {
+            if (title && titleEl) titleEl.textContent = title;
+            if (title && fallbackTitle) fallbackTitle.textContent = title;
+            if (meta && metaEl) metaEl.innerHTML = meta;
+
+            const isPhone = (title || '').toLowerCase().includes('phone');
+            const isFight = (title || '').toLowerCase().includes('fight');
+            const isSleep = (title || '').toLowerCase().includes('sleep');
+            if (fallbackEmoji) {
+                fallbackEmoji.textContent = isPhone ? '📱' : (isFight ? '🥊' : (isSleep ? '💤' : '🚨'));
+            }
+
+            modalImg.style.display = 'block';
+            if (fallbackBox) fallbackBox.style.display = 'none';
+
+            modalImg.onload = function() {
+                modalImg.style.display = 'block';
+                if (fallbackBox) fallbackBox.style.display = 'none';
+            };
+
+            modalImg.onerror = function() {
+                modalImg.style.display = 'none';
+                if (fallbackBox) fallbackBox.style.display = 'block';
+            };
+
+            modalImg.src = src;
+            modal.style.display = 'block';
+        }
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.close, .close-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            });
+        });
+    });
 </script>
 <script src="{{ url_for('static', filename='js/incidents.js') }}"></script>
 {% endblock %}

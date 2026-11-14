@@ -1,2 +1,0 @@
-CampusGuard AI Static Assets
-

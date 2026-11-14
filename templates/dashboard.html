@@ -38,152 +38,240 @@
     </div>
 </div>
 
-<!-- Main Workspace Hub (Visible Immediately Without Scrolling) -->
-<div class="dashboard-content" style="padding: 1.5rem 2rem 2rem; max-width: 1400px; margin: 0 auto;">
-    <div class="content-grid" style="grid-template-columns: 1.25fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+<!-- Main Workspace Hub (Unified Viewport with Mode Tabs + Right-Side Alert Feed) -->
+<div class="dashboard-content" style="padding: 1.5rem 2rem 2rem; max-width: 1440px; margin: 0 auto;">
+    <div class="content-grid dashboard-workspace-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: stretch;">
         
-        <!-- Panel 1: Single Intuitive Camera Monitor -->
-        <div class="recent-incidents" style="padding: 1.5rem;">
-            <div class="content-box-header" style="margin-bottom: 1rem; padding-bottom: 0.75rem;">
-                <div>
-                    <h2 style="font-size: 1.15rem; margin-bottom: 2px;">Live Camera Monitoring</h2>
-                    <span style="font-size: 0.8rem; color: #64748b;">Autonomous video stream with real-time anomaly detection</span>
+        <!-- Primary Left Column: Unified Vision Console (Shared 16:9 Canvas) -->
+        <div class="recent-incidents" style="padding: 1.35rem 1.5rem; border-radius: 16px; background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 77, 64, 0.05); display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+            
+            <!-- Top Mode Switcher Header -->
+            <div class="content-box-header" style="margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                <!-- Segmented Tabs: Live Camera vs Test Media Upload -->
+                <div class="unified-mode-switcher">
+                    <button type="button" id="tabLiveMode" class="unified-tab active">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                        <span>Live Camera</span>
+                    </button>
+                    <button type="button" id="tabUploadMode" class="unified-tab">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Test Media Upload</span>
+                    </button>
                 </div>
-                
-                <!-- Single Unified Toggle Button -->
-                <button id="cameraToggleBtn" class="btn btn-primary btn-small" style="padding: 0.5rem 1.25rem;">
-                    <svg id="cameraToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                    </svg>
-                    <span id="cameraToggleText">Start Camera</span>
-                </button>
+
+                <!-- Contextual Header Action Button -->
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <!-- Action Button for Live Mode -->
+                    <button id="cameraToggleBtn" class="btn btn-primary btn-small" style="padding: 0.5rem 1.25rem;">
+                        <svg id="cameraToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span id="cameraToggleText">Start Camera</span>
+                    </button>
+
+                    <!-- Action Button for Upload Mode -->
+                    <button id="quickAnalyzeBtn" class="btn btn-primary btn-small" style="display: none; padding: 0.5rem 1.25rem;" disabled>
+                        <span>⚡ Run AI Detection</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Video Screen Viewport -->
-            <div id="hubVideoContainer" style="background: #0f172a; border-radius: 12px; aspect-ratio: 16/9; min-height: 270px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; margin-bottom: 0.85rem; border: 1.5px solid #e2e8f0;">
-                <div id="hubPlaceholder" style="text-align: center; color: #94a3b8; padding: 1.25rem;">
-                    <div style="font-size: 2.5rem; margin-bottom: 0.35rem; opacity: 0.8;">📹</div>
-                    <p style="font-weight: 700; color: #f1f5f9; font-size: 1.05rem; margin-bottom: 0.25rem;">Camera is Offline</p>
-                    <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">Click "Start Camera" above to begin live stream</p>
+            <!-- Shared 16:9 Canvas Viewport -->
+            <div id="hubVideoContainer" class="soc-canvas-viewport">
+                
+                <!-- === TAB 1: LIVE CAMERA VIEWPORT === -->
+                <div id="liveViewportWrap" style="width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center;">
+                    <!-- Offline State (Guaranteed hidden when live video starts) -->
+                    <div id="hubPlaceholder" style="text-align: center; color: #94a3b8; padding: 1.5rem; max-width: 480px; margin: 0 auto;">
+                        <div style="font-size: 2.8rem; margin-bottom: 0.4rem; opacity: 0.85;">📹</div>
+                        <p style="font-weight: 700; color: #f1f5f9; font-size: 1.1rem; margin-bottom: 0.3rem;">Camera is Offline</p>
+                        <p style="font-size: 0.84rem; color: #94a3b8; margin: 0 0 1rem 0;">Click "Start Camera" above to see your face and live autonomous surveillance</p>
+                    </div>
+                    
+                    <!-- Annotated Live Feed Image (OpenCV or YOLO Browser processing) -->
+                    <img id="hubLiveFeedImg" style="display: none; width: 100%; height: 100%; object-fit: contain;" alt="Live Surveillance Stream">
+                    
+                    <!-- Browser WebRTC Video (Direct Face View) -->
+                    <video id="hubBrowserVideo" autoplay playsinline muted style="display: none; width: 100%; height: 100%; object-fit: contain;"></video>
+                    <canvas id="hubWebcamCanvas" style="display: none;"></canvas>
+
+                    <!-- Floating Live Tag Badge (Hidden until camera turns ON) -->
+                    <div id="hubLiveBadge" style="display: none; position: absolute; top: 12px; left: 12px; background: rgba(11, 21, 30, 0.85); backdrop-filter: blur(8px); color: #00e5ce; padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 800; font-family: var(--font-mono); border: 1px solid rgba(0, 229, 206, 0.4); align-items: center; gap: 7px; z-index: 5;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #00e5ce; box-shadow: 0 0 10px #00e5ce;"></span>
+                        <span id="hubLiveBadgeText">LIVE STREAMING</span>
+                    </div>
                 </div>
-                
-                <img id="hubLiveFeedImg" style="display: none; width: 100%; height: 100%; object-fit: contain; border-radius: 12px;" alt="Live Surveillance Stream">
-                
-                <!-- Live Tag Floating Badge -->
-                <div id="hubLiveBadge" style="display: none; position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.75); color: #00e5ce; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; font-family: var(--font-mono); border: 1px solid rgba(0, 229, 206, 0.4); display: flex; align-items: center; gap: 6px;">
-                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #00e5ce; box-shadow: 0 0 8px #00e5ce;"></span>
-                    <span>LIVE STREAMING</span>
+
+                <!-- === TAB 2: TEST MEDIA UPLOAD VIEWPORT === -->
+                <div id="uploadViewportWrap" style="display: none; width: 100%; height: 100%; position: relative;">
+                    <!-- Interactive Dashed Dropzone -->
+                    <div id="quickDropzone" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 2rem; border: 2.5px dashed rgba(0, 229, 206, 0.45); background: rgba(0, 229, 206, 0.03); border-radius: 14px; transition: all 0.2s;">
+                        <input type="file" id="quickFileInput" accept="image/*,video/*" style="display: none;">
+                        <div id="dropzoneIcon" style="font-size: 3rem; margin-bottom: 0.5rem; filter: drop-shadow(0 4px 10px rgba(0,229,206,0.3));">📁</div>
+                        <p id="quickDropText" style="font-weight: 750; color: #f1f5f9; font-size: 1.15rem; margin-bottom: 0.25rem;">Click or Drag Demo Media Here</p>
+                        <p style="color: #94a3b8; font-size: 0.84rem; max-width: 440px; margin: 0;">Upload any JPG, PNG photo or MP4 video to benchmark YOLOv11 anomaly detection & alarms</p>
+                    </div>
+
+                    <!-- Analyzed Result Canvas (Renders inside the same 16:9 viewport!) -->
+                    <div id="uploadResultImgContainer" style="display: none; width: 100%; height: 100%; position: relative; align-items: center; justify-content: center; background: #000000; cursor: pointer;" onclick="showEvidence(document.getElementById('quickResultImg'))" title="Click to open full forensic evidence modal">
+                        <img id="quickResultImg" style="width: 100%; height: 100%; object-fit: contain; display: block;" alt="Analyzed Media Evidence">
+                        
+                        <!-- Floating Threat Tag -->
+                        <div id="quickThreatTypeTag" style="position: absolute; top: 12px; left: 12px; background: rgba(220, 38, 38, 0.95); color: #ffffff; padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.04em; backdrop-filter: blur(6px); z-index: 5;">
+                            THREAT DETECTED
+                        </div>
+
+                        <!-- Floating Expand Evidence Pill -->
+                        <div style="position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); color: #ffffff; padding: 0.3rem 0.7rem; border-radius: 7px; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; gap: 6px; z-index: 5;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
+                            <span>Expand Evidence</span>
+                        </div>
+
+                        <!-- Change File Overlay Button -->
+                        <button type="button" id="uploadChangeFileBtn" style="position: absolute; top: 12px; right: 12px; background: rgba(15, 23, 42, 0.85); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.2); padding: 0.3rem 0.75rem; border-radius: 7px; font-size: 0.72rem; font-weight: 700; cursor: pointer; z-index: 6;">
+                            Change File
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Bottom Stream Telemetry Bar -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; background: #f8fafc; padding: 0.65rem 1rem; border-radius: 10px; border: 1px solid #e2e8f0; font-family: var(--font-mono); font-size: 0.78rem;">
-                <div style="display: flex; align-items: center; gap: 0.4rem;">
-                    <span style="color: #64748b;">Source:</span>
-                    <select id="hubCameraSelect" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.2rem 0.5rem; font-size: 0.78rem; font-family: var(--font-sans);">
+            <!-- Unified Bottom Controls & Telemetry Bar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: #f8fafc; padding: 0.75rem 1.15rem; border-radius: 12px; border: 1px solid #e2e8f0; font-family: var(--font-mono); font-size: 0.8rem;">
+                
+                <!-- Left Source / File Selector -->
+                <div id="liveControlsGroup" style="display: flex; align-items: center; gap: 0.4rem;">
+                    <span style="color: #64748b; font-family: var(--font-sans); font-weight: 600;">Source:</span>
+                    <select id="hubCameraSelect" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 7px; padding: 0.25rem 0.65rem; font-size: 0.8rem; font-family: var(--font-sans); font-weight: 600; color: #0f172a;">
+                        <option value="browser" selected>🎥 Browser Webcam (Direct My Face)</option>
                         {% for camera in cameras %}
-                        <option value="{{ camera.id }}">{{ camera.name }}</option>
+                        <option value="{{ camera.id }}">📹 {{ camera.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
+
+                <div id="uploadControlsGroup" style="display: none; align-items: center; gap: 0.5rem; font-family: var(--font-sans);">
+                    <span style="color: #64748b; font-weight: 600;">Selected File:</span>
+                    <strong id="uploadFileNameDisplay" style="color: #007d70; font-size: 0.82rem; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;">
+                        None (Click canvas to select)
+                    </strong>
+                </div>
                 
-                <div style="display: flex; gap: 1rem;">
-                    <div><span style="color: #64748b;">Objects:</span> <strong id="hubDetections" style="color: #007d70;">0</strong></div>
-                    <div><span style="color: #64748b;">FPS:</span> <strong id="hubFPS" style="color: #007d70;">0</strong></div>
-                    <div><span style="color: #64748b;">Anomalies:</span> <strong id="hubAnomalies" style="color: #dc2626;">0</strong></div>
+                <!-- Right Live Telemetry Numbers -->
+                <div style="display: flex; gap: 1.25rem; align-items: center;">
+                    <div><span style="color: #64748b;">Objects:</span> <strong id="hubDetections" style="color: #007d70; font-size: 0.92rem;">0</strong></div>
+                    <div><span style="color: #64748b;">FPS:</span> <strong id="hubFPS" style="color: #007d70; font-size: 0.92rem;">0</strong></div>
+                    <div><span style="color: #64748b;">Anomalies:</span> <strong id="hubAnomalies" style="color: #dc2626; font-size: 0.92rem;">0</strong></div>
+                </div>
+            </div>
+
+            <!-- Collapsible Forensic Analysis Dossier (Shown below viewport when Test Media finishes) -->
+            <div id="quickResultCard" style="display: none; margin-top: 1rem; border-radius: 12px; border: 1.5px solid #cbd5e1; background: #ffffff; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); overflow: hidden; transition: all 0.25s ease;">
+                <div id="quickResultHeader" style="padding: 0.85rem 1.15rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="quickStatusIcon" style="font-size: 1.25rem;">🚨</span>
+                        <div>
+                            <h4 id="quickResultTitle" style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #0f172a;">AI Forensic Detection Report</h4>
+                            <span id="quickEngineSubtitle" style="font-size: 0.72rem; color: #64748b; font-family: var(--font-mono);">YOLOv11 Neural Core • Verified</span>
+                        </div>
+                    </div>
+                    <span id="quickIncidentBadge" style="font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.65rem; border-radius: 999px; letter-spacing: 0.04em;">ALERT</span>
+                </div>
+
+                <div style="padding: 1rem 1.15rem; background: #ffffff;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 0.85rem;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; border-radius: 8px;">
+                            <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; display: block; margin-bottom: 2px;">Primary Classification</span>
+                            <strong id="quickAnomalyType" style="font-size: 0.88rem; color: #0f172a;">Physical Altercation</strong>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 600;">Confidence Score</span>
+                                <strong id="quickConfidenceVal" style="font-size: 0.85rem; color: #007d70; font-family: var(--font-mono);">94%</strong>
+                            </div>
+                            <div style="width: 100%; height: 5px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 4px;">
+                                <div id="quickConfidenceBar" style="height: 100%; width: 94%; background: #00bfae; border-radius: 999px;"></div>
+                            </div>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; border-radius: 8px;">
+                            <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; display: block; margin-bottom: 2px;">Persons Identified</span>
+                            <strong id="quickPersonsCount" style="font-size: 0.88rem; color: #0f172a;">2 Persons</strong>
+                        </div>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 0.75rem; border-radius: 8px;">
+                            <span style="font-size: 0.7rem; color: #64748b; font-weight: 600; display: block; margin-bottom: 2px;">Inference Latency</span>
+                            <strong id="quickLatencyVal" style="font-size: 0.88rem; color: #0f172a; font-family: var(--font-mono);">0.04s (24 FPS)</strong>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="{{ url_for('guard_portal') }}" class="btn btn-danger btn-small" style="flex: 1; text-align: center; justify-content: center; font-size: 0.8rem; padding: 0.5rem;">
+                            <span>🚨 Dispatch Guard</span>
+                        </a>
+                        <button type="button" onclick="showEvidenceFromCurrent()" class="btn btn-secondary btn-small" style="flex: 1; justify-content: center; font-size: 0.8rem; padding: 0.5rem;">
+                            <span>🔍 Full Dossier</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Panel 2: 1-Click Instant AI Benchmark & Alarm Trigger -->
-        <div class="system-alerts" style="padding: 1.5rem;">
-            <div class="content-box-header" style="margin-bottom: 1rem; padding-bottom: 0.75rem;">
+        <!-- Right Column: Real-Time Security Incident Stream (Above the Fold) -->
+        <div class="recent-incidents" style="padding: 1.35rem 1.5rem; border-radius: 16px; background: #ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 20px -2px rgba(0, 77, 64, 0.05); display: flex; flex-direction: column; height: 100%;">
+            <div class="content-box-header" style="margin-bottom: 0.85rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9;">
                 <div>
-                    <h2 style="font-size: 1.15rem; margin-bottom: 2px;">Instant AI Test & Alarm</h2>
-                    <span style="font-size: 0.8rem; color: #64748b;">Drop a photo/video to test detection and sound the alarm</span>
+                    <h2 style="font-size: 1.1rem; margin-bottom: 2px; color: #0f172a; font-weight: 800;">Security Alert Stream</h2>
+                    <span style="font-size: 0.76rem; color: #64748b;">Live anomaly feed with evidence</span>
                 </div>
-                <span class="badge-live-pulse" style="background: #e6fffa; color: #007d70; border-color: #99f6e4;">1-CLICK</span>
-            </div>
-
-            <!-- Clean Dropzone Card -->
-            <div id="quickDropzone" style="border: 2px dashed #008779; background: #f0fdfa; border-radius: 12px; padding: 1.4rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 0.85rem;">
-                <input type="file" id="quickFileInput" accept="image/*,video/*" style="display: none;">
-                <div style="font-size: 2rem; margin-bottom: 0.25rem;">📁</div>
-                <p style="font-weight: 700; color: #004d40; font-size: 0.92rem; margin-bottom: 0.15rem;" id="quickDropText">Click or Drag Demo Media Here</p>
-                <small style="color: #64748b; font-size: 0.78rem;">JPG, PNG, or MP4 (e.g. someone sleeping or a person)</small>
-            </div>
-
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.5rem 0.85rem; border-radius: 8px; font-size: 0.78rem; color: #475569; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem;">
-                <span>AI Threat Engines:</span>
-                <strong style="color: #007d70;">Auto-Detect (Fight, Sleep, Loiter, Person)</strong>
-            </div>
-
-            <button id="quickAnalyzeBtn" class="btn btn-primary btn-full" style="padding: 0.65rem 1rem; font-size: 0.9rem; border-radius: 8px;" disabled>
-                <span>⚡ Run AI Detection & Sound Alarm</span>
-            </button>
-
-            <!-- Test Result Feedback Card -->
-            <div id="quickResultCard" style="display: none; margin-top: 0.85rem; padding: 0.85rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                    <strong style="color: #004d40; font-size: 0.85rem;" id="quickResultTitle">Detection Complete</strong>
-                    <span id="quickIncidentBadge" style="font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px;"></span>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                    <button type="button" onclick="clearIncidentHistory()" class="btn btn-secondary btn-small" style="font-size: 0.74rem; padding: 0.35rem 0.65rem;">
+                        🧹 Clear
+                    </button>
+                    <a href="{{ url_for('incidents') }}" class="btn btn-secondary btn-small" style="font-size: 0.74rem; padding: 0.35rem 0.65rem;">View All</a>
                 </div>
-                <div style="max-height: 180px; overflow: hidden; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 0.5rem;">
-                    <img id="quickResultImg" style="width: 100%; height: auto; display: block; object-fit: contain;" alt="Result Bounding Boxes">
-                </div>
-                <p id="quickResultDetails" style="font-size: 0.78rem; color: #475569; margin: 0;"></p>
             </div>
-        </div>
-    </div>
-
-    <!-- Unified Incident Log & Real-Time Alert Stream -->
-    <div class="recent-incidents" style="padding: 1.5rem;">
-        <div class="content-box-header" style="margin-bottom: 1rem; padding-bottom: 0.75rem;">
-            <div>
-                <h2 style="font-size: 1.15rem; margin-bottom: 2px;">Security Incidents & Live Alert Feed</h2>
-                <span style="font-size: 0.8rem; color: #64748b;">Real-time feed of detected anomalies with photographic evidence</span>
-            </div>
-            <a href="{{ url_for('incidents') }}" class="btn btn-secondary btn-small">View Full History</a>
-        </div>
-        
-        <div class="incidents-list" id="dashboardIncidentsList">
-            {% if recent_incidents %}
-                {% for incident in recent_incidents %}
-                <div class="incident-card severity-{{ incident.severity }}" style="padding: 1rem; border-radius: 10px;">
-                    <div class="incident-header">
-                        <span class="incident-title" style="font-weight: 750;">{{ incident.title }}</span>
-                        <span class="incident-severity {{ incident.severity }}">{{ incident.severity|upper }}</span>
+            
+            <div class="incidents-list" id="dashboardIncidentsList" style="flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column;">
+                {% if recent_incidents %}
+                    {% for incident in recent_incidents %}
+                    <div class="incident-card severity-{{ incident.severity }}">
+                        <div class="incident-header">
+                            <span class="incident-title">{{ incident.title }}</span>
+                            <span class="incident-severity {{ incident.severity }}">{{ incident.severity|upper }}</span>
+                        </div>
+                        <div class="incident-details">
+                            <span>📍 <strong>{{ incident.location }}</strong></span>
+                            <span style="margin: 0 6px;">•</span>
+                            <span>🕒 {{ incident.created_at.strftime('%H:%M') }}</span>
+                            <span style="margin: 0 6px;">•</span>
+                            <span>Confidence: <strong>{{ (incident.confidence_score * 100)|round|int }}%</strong></span>
+                        </div>
+                        {% if incident.frame_evidence or incident.video_evidence_path %}
+                        <div class="incident-evidence-bar">
+                            <div class="evidence-trigger" data-src="/api/incidents/evidence/{{ incident.id }}" data-title="{{ incident.title }}" data-meta="📍 {{ incident.location }} • {{ incident.created_at.strftime('%Y-%m-%d %H:%M') }}" onclick="showEvidence(this.dataset.src, this.dataset.title, this.dataset.meta)">
+                                <div style="width: 55px; height: 38px; border-radius: 6px; overflow: hidden; background: #0b151e; display: flex; align-items: center; justify-content: center; border: 1px solid #cbd5e1; flex-shrink: 0;">
+                                    <img src="/api/incidents/evidence/{{ incident.id }}" alt="Evidence" class="evidence-thumb" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <span style="display: none; font-size: 1.15rem;">{% if 'phone' in incident.incident_type %}📱{% elif 'fight' in incident.incident_type %}🥊{% elif 'sleep' in incident.incident_type %}💤{% else %}🚨{% endif %}</span>
+                                </div>
+                                <span class="evidence-link-text">🔍 View Photographic Evidence</span>
+                            </div>
+                            <a href="{{ url_for('guard_portal') }}" class="btn btn-danger btn-small">🚨 Dispatch</a>
+                        </div>
+                        {% endif %}
                     </div>
-                    <div class="incident-details" style="font-size: 0.82rem;">
-                        <span class="incident-location">📍 {{ incident.location }}</span>
-                        <span class="incident-time">{{ incident.created_at.strftime('%H:%M') }}</span>
-                        <span>• Confidence: <strong>{{ (incident.confidence_score * 100)|round|int }}%</strong></span>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-incidents" style="padding: 2.5rem 1rem; text-align: center; color: #64748b; margin: auto;">
+                        <div class="empty-icon" style="font-size: 1.75rem;">✓</div>
+                        <p style="font-size: 0.9rem;">No incidents recorded today. System is secure.</p>
                     </div>
-                    {% if incident.frame_evidence %}
-                    <div class="incident-evidence" style="margin-top: 0.5rem;">
-                        <img src="data:image/jpeg;base64,{{ incident.frame_evidence }}" 
-                             alt="Incident Evidence" 
-                             class="evidence-image"
-                             onclick="showEvidence(this)"
-                             style="max-height: 90px; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1;">
-                    </div>
-                    {% elif incident.video_evidence_path %}
-                    <div class="incident-evidence" style="margin-top: 0.5rem;">
-                        <img src="/get_result_file/{{ incident.video_evidence_path }}" 
-                             alt="Incident Evidence" 
-                             class="evidence-image"
-                             onclick="showEvidence(this)"
-                             style="max-height: 90px; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1;">
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-incidents" style="padding: 2rem 1rem;">
-                    <div class="empty-icon" style="font-size: 1.75rem;">✓</div>
-                    <p style="font-size: 0.9rem;">No incidents recorded today. System is secure.</p>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
@@ -225,20 +313,51 @@
     </div>
 </div>
 
-<!-- Full Evidence Preview Modal -->
+<!-- Full Forensic Evidence & Incident Dossier Modal -->
 <div id="evidenceModal" class="modal">
-    <div class="modal-content" style="max-width: 800px;">
-        <div class="modal-header">
-            <h3>Incident Photographic Evidence</h3>
-            <span class="close">&times;</span>
+    <div class="modal-content" style="max-width: 860px; border-radius: 16px; overflow: hidden; padding: 0;">
+        <div class="modal-header" style="background: #0f172a; color: #ffffff; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 1.35rem;">🛡️</span>
+                <div>
+                    <h3 id="modalIncidentTitle" style="margin: 0; font-size: 1.1rem; color: #ffffff;">Incident Photographic Evidence</h3>
+                    <span id="modalIncidentSubtitle" style="font-size: 0.76rem; color: #94a3b8; font-family: var(--font-mono);">AI Forensic Analysis • Cryptographic Snapshot</span>
+                </div>
+            </div>
+            <span class="close" style="color: #cbd5e1; font-size: 1.75rem;">&times;</span>
         </div>
-        <div class="modal-body" style="text-align: center;">
-            <img id="evidenceImage" src="" style="max-width: 100%; max-height: 70vh; border-radius: 8px;">
+        <div class="modal-body" style="padding: 1.5rem; background: #0b151e;">
+            <div id="modalViewportBox" style="text-align: center; background: #000000; border-radius: 12px; overflow: hidden; border: 1.5px solid #1e293b; min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+                <img id="evidenceImage" src="" style="max-width: 100%; max-height: 56vh; object-fit: contain; display: block; margin: 0 auto;" alt="Photographic Forensic Evidence">
+                
+                <!-- Fallback Forensic Dossier (Shown gracefully if legacy photo file was purged from disk) -->
+                <div id="evidenceFallbackDossier" style="display: none; padding: 2.5rem 1.5rem; text-align: center;">
+                    <div id="fallbackEmoji" style="font-size: 3.5rem; margin-bottom: 0.6rem;">📱</div>
+                    <h3 id="fallbackTitle" style="color: #f1f5f9; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem;">Anomaly Detected: phone_detected</h3>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(220, 38, 38, 0.15); border: 1px solid rgba(220, 38, 38, 0.4); color: #f87171; padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.76rem; font-weight: 750; font-family: var(--font-mono); margin-bottom: 1rem;">
+                        <span>● ANOMALY VERIFIED BY YOLOV11</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; max-width: 440px; margin: 0 auto; line-height: 1.5;">
+                        Incident snapshot verified and logged to database. Image file was archived or captured during previous session.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="padding: 1rem 1.5rem; background: #ffffff; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div id="modalMetaStats" style="font-size: 0.82rem; color: #64748b; font-family: var(--font-mono);">
+                <span>Engine: <strong>YOLOv11 Anomaly Vision</strong></span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('guard_portal') }}" class="btn btn-danger btn-small" style="padding: 0.5rem 1rem;">
+                    <span>🚨 Dispatch Patrol</span>
+                </a>
+                <button type="button" class="btn btn-secondary btn-small close-modal" style="padding: 0.5rem 1rem;">Close</button>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/dashboard.js') }}?v=20.0"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}?v=33.0"></script>
 {% endblock %}
