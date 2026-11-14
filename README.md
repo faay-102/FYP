@@ -11,9 +11,11 @@ The platform combines multi-camera stream processing, an intuitive **1-Click AI 
 
 ## Key Capabilities
 
-- **Single-Click Live Surveillance:** Instantly stream video from laptop webcams, external USB cameras, or IP network feeds (RTSP/HTTP) with real-time YOLOv11 bounding boxes.
-- **1-Click Instant AI Benchmark:** Drag & drop any photo or video directly on the dashboard to test all AI models (*Fight*, *Sleep*, *Loitering*, *Person Detection*) and trigger immediate alarms.
-- **Automated Incident Logging:** Generates incident records with Base64 visual evidence snapshots and anti-spam cooldown timers to prevent duplicate alerts.
+- **Unified 50/50 Surveillance & Threat Workspace:** Side-by-side equal-width dashboard featuring a tabbed multi-mode viewport on the left and a live Security Alert Stream on the right.
+- **Single-Click Live Surveillance:** Instantly stream video from laptop webcams (`getUserMedia`), external USB cameras, or IP network feeds (RTSP/HTTP) with real-time YOLOv11 bounding boxes.
+- **1-Click Instant AI Benchmark:** Drag & drop any photo or video into the shared 16:9 viewport to test all AI models (*Fight*, *Sleep*, *Loitering*, *Person Detection*) and trigger immediate alarms.
+- **Priority-Ranked Threat Arbitration:** Enforces strict safety ranking: **Physical Fights** (High) > **Sleeping / Head-Down / Medical Collapse** (Medium, based on horizontal posture aspect-ratio $h/w < 0.78$) > **Mobile Phone Usage** (Policy, requiring verified confidence $\ge 0.70$ to eliminate desk shadow false positives). Upright sitting postures ($h/w \ge 0.85$) are strictly classified as normal activity.
+- **Automated Incident Logging & Forensic Modals:** Generates incident records with Base64 visual evidence snapshots, anti-spam cooldown timers, and interactive full-resolution Photographic Forensic Evidence modals with SVG dossier fallbacks.
 - **Mobile Guard Patrol Command (`/guard`):** Full-width, mobile-optimized dispatch interface featuring real-time incident polling, two-tone synthesizer emergency sirens, and status updating (*Responding*, *Resolved*).
 - **Security Incident Archives (`/incidents`):** Filter historical security records by severity (*Low*, *Medium*, *High*, *Critical*) or status, with clickable full-resolution photographic evidence modals.
 - **Modern CyberGuard Theme:** Professional dark teal and forest green SaaS aesthetic with crisp typography and high-contrast telemetry indicators.
@@ -173,21 +175,18 @@ Open `http://127.0.0.1:5000` in your web browser. The database initializes autom
 
 ## Application Usage Guide
 
-### 1. Live Camera Surveillance (`/dashboard`)
-- Click **`Start Camera`** to turn on live webcam/video monitoring.
-- The system renders real-time YOLOv11 bounding boxes and displays live FPS and object counters.
+### 1. Operations Dashboard (`/dashboard`)
+- **Shared 16:9 Viewport:** Seamlessly toggle between **Live Camera** and **Test Media Upload** tabs in the equal-width left card.
+- **Live Camera Surveillance:** Select your camera source (Browser Webcam or Hardware CCTV) and click **`Start Camera`** for live video monitoring with real-time YOLOv11 bounding boxes, FPS, and object telemetry.
+- **Instant AI Test & Alarm:** Switch to the **Test Media Upload** tab, drag & drop any classroom photo or video, and click **`⚡ Run AI Detection`**. The system renders annotated bounding boxes, triggers audio alarms, and logs confirmed threats with evidence snapshots.
+- **Security Alert Stream:** The right column streams all real-time campus incidents with severity tags, confidence metrics, 1-click **Dispatch** buttons, and clickable thumbnails that open the **Photographic Forensic Evidence Modal**.
 
-### 2. Instant AI Test & Alarm Trigger (`/dashboard`)
-- Drag & drop any photo or video into the **Instant AI Test** card.
-- Click **`⚡ Run AI Detection & Sound Alarm`**.
-- The platform runs inference, displays the detection boxes, logs the incident with photographic evidence, and sounds the emergency alarm.
-
-### 3. Mobile Guard Patrol Command (`/guard`)
+### 2. Mobile Guard Patrol Command (`/guard`)
 - Full-width mobile responder dashboard for on-duty security officers.
 - Automatically polls for active incidents and plays a two-tone synthesizer emergency siren when threats occur.
-- Officers can inspect evidence snapshots and acknowledge dispatches.
+- Officers can inspect evidence snapshots and acknowledge dispatches (*Responding / En Route*, *Mark as Resolved*).
 
-### 4. Incident Archives (`/incidents`)
+### 3. Incident Archives (`/incidents`)
 - Browse all recorded security incidents.
-- Filter by status (*Reported*, *Investigating*, *Resolved*) or severity.
-- Click any evidence thumbnail to preview the full-resolution photographic evidence modal.
+- Filter by status (*Reported*, *Investigating*, *Resolved*) or severity (*Low*, *Medium*, *High*, *Critical*).
+- Click **🔍 View Photographic Evidence** on any incident card to inspect the full-resolution evidence modal.
